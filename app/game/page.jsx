@@ -1,52 +1,200 @@
 "use client"
 
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 class Tile {
-    constructor(value, isBomb) {
-      this.value = value
-      this.isBomb = isBomb;
+  constructor(row, col, value, isBomb, isCovered, isFlagged) {
+    this.row = row;
+    this.col = col;
+    this.value = value;
+    this.isBomb = isBomb;
+    this.isCovered = isCovered;
+    this.isFlagged = isFlagged;
+  }
+
+  onClick = (grid, setGrid, newGame) => {
+    const tempGrid = grid.map(row =>
+      row.map(tile =>
+        new Tile(tile.row, tile.col, tile.value, tile.isBomb, tile.isCovered, tile.isFlagged)
+      )
+    );
+
+    const clickedTile = tempGrid[this.row][this.col];
+    if (!clickedTile.isBomb){
+      clickedTile.isCovered = false;
+    }
+    else {
+      clickedTile.isCovered = false;
+      setGrid(tempGrid)
+      alert("You suck bro");
+      newGame(setGrid);
+      return;
+    }
+    if (clickedTile.value === 0) {
+      this.floodReveal(grid, setGrid);
+    } else {
+      setGrid(tempGrid);
     }
 
-    onClick = () => {
-      alert(`Tile ${this.value} clicked! and isBomb = ${this.isBomb}`);
+    if (checkWin(tempGrid)) {
+      alert("🎉 You won!");
+      newGame(setGrid);
     }
   }
 
-const GamePage = () =>{
-  const ROWS = 10
-  const COLUMNS = 10
-  const BOMB_RATIO = 0.10
+  onContextMenu = (grid, setGrid) => {
+    const tempGrid = grid.map(row => row.map(tile => ({ ...tile })));
 
-  const randomizeBomb = (BOMB_RATIO)=>{
-    const isBomb = Math.random() < BOMB_RATIO;
-    return isBomb;
+    const clickedTile = tempGrid[this.row][this.col];
+    if (clickedTile.isFlagged){
+      clickedTile.isFlagged = false;
+    }
+    else if (!clickedTile.isFlagged && clickedTile.isCovered){
+      clickedTile.isFlagged = true;
+    }
+
+    setGrid(tempGrid);
   }
 
-  const [grid] = useState(() => {
-    const rows = ROWS;
-    const cols = COLUMNS;
+  floodReveal = (grid, setGrid) => {
+    const tempGrid = grid.map(row => row.map(tile => ({ ...tile })));
+    const queue = [];
+    const visited = new Set();
+
+    const key = (r, c) => `${r},${c}`;
+
+    queue.push([this.row, this.col]);
+
+    while (queue.length > 0) {
+      const [r, c] = queue.shift();
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLUMNS) continue;
+      if (visited.has(key(r, c))) continue;
+
+      const tile = tempGrid[r][c];
+      visited.add(key(r, c));
+
+      if (!tile.isBomb) {
+        tile.isCovered = false;
+        // if it's 0, add neighbors to queue
+        if (tile.value === 0) {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (!(dr === 0 && dc === 0)) {
+                queue.push([r + dr, c + dc]);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    setGrid(tempGrid);
+  };
+}
+
+const ROWS = 12
+const COLUMNS = 12
+const BOMB_RATIO = 0.15
+
+const randomizeBomb = (BOMB_RATIO)=>{
+  const isBomb = Math.random() < BOMB_RATIO;
+  return isBomb;
+}
+
+const getBombCount = (tile, grid) => {
+  const row = tile.row;
+  const col = tile.col;
+  let bombCount = 0;
+
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const newRow = row + dr;
+      const newCol = col + dc;
+      if (
+        newRow >= 0 && newRow < ROWS &&
+        newCol >= 0 && newCol < COLUMNS &&
+        !(dr === 0 && dc === 0)
+      ) {
+        if (grid[newRow][newCol].isBomb) {
+          bombCount++;
+        }
+      }
+    }
+  }
+
+  return bombCount;
+};
+
+const checkWin = (grid) => {
+  for (const row of grid) {
+    for (const tile of row) {
+      if (!tile.isBomb && tile.isCovered) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+const newGame = (setGrid) =>{
+  const tempGrid = [];
+
+  for (let r = 0; r < ROWS; r++) {
+    const row = [];
+    for (let c = 0; c < COLUMNS; c++) {
+      row.push(new Tile(r, c, null, randomizeBomb(BOMB_RATIO), true, false));
+    }
+    tempGrid.push(row);
+  }
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLUMNS; c++) {
+      const tile = tempGrid[r][c];
+      tile.value = getBombCount(tile, tempGrid);
+    }
+  }
+
+  setGrid(tempGrid);
+}
+
+const GamePage = () => {
+  const [grid, setGrid] = useState(null);
+
+  const newGame = () => {
     const tempGrid = [];
-    for (let r = 0; r < rows; r++) {
+    
+    for (let r = 0; r < ROWS; r++) {
       const row = [];
-      for (let c = 0; c < cols; c++) {
-        row.push(new Tile(`${r}-${c}`, randomizeBomb(BOMB_RATIO)));
+      for (let c = 0; c < COLUMNS; c++) {
+        row.push(new Tile(r, c, null, randomizeBomb(BOMB_RATIO), true, false));
       }
       tempGrid.push(row);
     }
-    return tempGrid;
-  });
 
-  
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLUMNS; c++) {
+        const tile = tempGrid[r][c];
+        tile.value = getBombCount(tile, tempGrid);
+      }
+    }
+
+    setGrid(tempGrid);
+  }
+
+  useEffect(() => {
+    newGame();
+  }, []);
+
+  if (!grid) return <div>Loading grid...</div>;
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${COLUMNS}, 60px)`,
-        gridTemplateRows: `repeat(${ROWS}, 60px)`,
-        gap: '5px',
+        gridTemplateColumns: `repeat(${COLUMNS}, 40px)`,
+        gridTemplateRows: `repeat(${ROWS}, 40px)`,
+        gap: '0px',
       }}
     >
       {grid.flat().map((tile, idx) => (
@@ -62,12 +210,52 @@ const GamePage = () =>{
             backgroundColor: '#eee',
             cursor: 'pointer',
           }}
-          onClick={() => tile.onClick()}
+          onClick={() => tile.onClick(grid, setGrid, newGame)} //left click
+          onContextMenu={(e) => {                              //right click
+            e.preventDefault();
+            tile.onContextMenu(grid, setGrid);
+          }}
         >
-          {tile.isBomb ? (
-            <div>❌</div>
+          {tile.isFlagged ? (
+            <div
+              style={{
+                  backgroundImage: 'url("/game_images/flag.png")',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  height: '100%',
+                  width: '100%',
+                }}
+            ></div>
+          ) : tile.isCovered ? (
+            <div
+              style={{
+                backgroundImage: 'url("/game_images/empty-block.png")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '100%',
+                width: '100%',
+              }}
+            ></div>
+          ) : tile.isBomb ? (
+            <div
+              style={{
+                  backgroundImage: 'url("/game_images/bomb-at-clicked-block.png")',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  height: '100%',
+                  width: '100%',
+                }}
+            ></div>
           ) : (
-            <div>{tile.value}</div>
+            <div
+              style={{
+                  backgroundImage: `url("/game_images/${tile.value}.png")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  height: '100%',
+                  width: '100%',
+                }}
+            ></div>
           )}
         </div>
       ))}
