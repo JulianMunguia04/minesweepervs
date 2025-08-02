@@ -1,5 +1,4 @@
 import './globals.css';
-import SocketInitializer from './SocketIntializer';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -15,7 +14,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SocketInitializer /> {/* Triggers on any route connection */}
         {children}
       </body>
     </html>

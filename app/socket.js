@@ -1,8 +1,6 @@
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000', {
-  path: '/api/socketio',
-});
+const socket = io('http://localhost:3001');
 
 // Optional: handle connection events here
 socket.on('connect', () => {

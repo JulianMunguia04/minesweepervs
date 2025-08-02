@@ -27,8 +27,10 @@ class Tile {
     else {
       clickedTile.isCovered = false;
       setGrid(tempGrid)
-      alert("You suck bro");
-      newGame(setGrid);
+      setTimeout(()=>{
+        alert("You suck bro");
+        newGame(setGrid);
+      }, 10)
       return;
     }
     if (clickedTile.value === 0) {
