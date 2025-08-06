@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import socket from './socket';
 
+import Sidebar from '../components/sidebar.js'
+
 export default function Home() {
   const [state, setState] = useState("Inital Value");
 
@@ -22,9 +24,12 @@ export default function Home() {
   }, []);
 
   return (
-    <main>
-      <h1>Home Directory</h1>
-      <div>Data from socket:{state}</div>
-    </main>
+    <>
+      <Sidebar />
+      <main style={{marginLeft:'calc(13vw + 16px)', padding:'0.5rem'}}>
+        <h1>Home Directory</h1>
+        <div>Data from socket:{state}</div>
+      </main>
+    </>
   );
 }
