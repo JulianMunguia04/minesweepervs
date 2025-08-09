@@ -145,10 +145,27 @@ const Sidebar = () => {
               width: '100%',
               margin: 0,
               marginBottom: '0.5rem',
-              cursor:'pointer'
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            Play
+            <img 
+              src="play-icon.png"
+              style={{
+                width: '18%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              Play
+            </div>
           </div>
           {showPlayMenu && (
             <div
@@ -168,35 +185,89 @@ const Sidebar = () => {
               }}
               onMouseLeave={playMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Play Online
+                <img 
+                  src="play-online.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Play Online
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Play a Friend
+                <img 
+                  src="play-a-friend.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Play A Friend
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                More Variants Coming Soon
+                <img 
+                  src="variants.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  More Coming Soon...
+                </div>
               </div>
             </div>
           )}
