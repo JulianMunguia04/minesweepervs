@@ -27,10 +27,10 @@ export const createTables = async () => {
         google_id VARCHAR(255) NULL,
         username VARCHAR(50) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        first_name VARCHAR(50) NOT NULL,
-        last_name VARCHAR(50) NOT NULL,
-        date_of_birth DATE NOT NULL,
+        password TEXT NULL,
+        first_name VARCHAR(50) NULL,
+        last_name VARCHAR(50) NULL,
+        date_of_birth DATE NULL,
         profile_picture TEXT NULL,
         games_played INT DEFAULT 0,
         games_won INT DEFAULT 0,
@@ -49,43 +49,33 @@ export const createTables = async () => {
 };
 
 //Run to create all tables
-//createTables()
+createTables()
 
-export const emailSignup = async (
-  username,
-  email,
-  password,
-  first_name,
-  last_name,
-  date_of_birth
-) => {
+export const emailSignup = async (username, email, password) => {
   try {
-    const checkQuery = `
-      SELECT id FROM users WHERE username = $1 OR email = $2
-    `;
-    const { rowCount } = await client.query(checkQuery, [username, email]);
-    if (rowCount > 0) {
-      return { success: false, message: 'Username or email already exists' };
-    }
-
     const insertQuery = `
       INSERT INTO users 
       (google_id, username, email, password, first_name, last_name, date_of_birth)
-      VALUES (NULL, $1, $2, $3, $4, $5, $6)
-      RETURNING id, username, email, first_name, last_name, date_of_birth, created_at
+      VALUES (NULL, $1, $2, $3, NULL, NULL, NULL)
+      RETURNING id, username, email, created_at
     `;
 
-    const result = await client.query(insertQuery, [
-      username,
-      email,
-      password,
-      first_name,
-      last_name,
-      date_of_birth
-    ]);
+    const result = await client.query(insertQuery, [username, email, password]);
 
     return { success: true, user: result.rows[0] };
   } catch (err) {
+    // Handle duplicate username/email
+    if (err.code === '23505') {
+      if (err.constraint === 'users_username_key') {
+        return { success: false, message: 'Username already exists' };
+      }
+      if (err.constraint === 'users_email_key') {
+        return { success: false, message: 'Email already exists' };
+      }
+      // generic unique violation
+      return { success: false, message: 'Duplicate value exists' };
+    }
+
     console.error('❌ Error creating user:', err.stack);
     return { success: false, message: 'Database error' };
   }

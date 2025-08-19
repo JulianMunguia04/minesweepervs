@@ -6,7 +6,7 @@ export async function POST(request) {
   try{
     //Get Post Request
     const body = await request.json();
-    const { username, email, password, first_name, last_name, date_of_birth } = body;
+    const { username, email, password } = body;
 
     //Encrypt Password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,9 +16,6 @@ export async function POST(request) {
       username,
       email,
       hashedPassword,
-      first_name,
-      last_name,
-      date_of_birth
     );
 
     if (!result.success) {
