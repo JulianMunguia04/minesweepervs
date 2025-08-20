@@ -4,15 +4,13 @@ import React from 'react'
 import { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 
-import GoogleLoginButton from '../../components/googlesignup'
-
 const Register = () => {
   const router = useRouter();
 
   return(
     <>
-      <div>Sign Up</div>
-      <GoogleLoginButton></GoogleLoginButton>
+      <div>Log in</div>
+      <div>google log in</div>
     </>
   )
 }

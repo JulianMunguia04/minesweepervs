@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export const metadata: Metadata = {
   title: 'Minesweeper VS',
@@ -35,7 +36,9 @@ export default function RootLayout({
                 
       </head>
       <body>
-        {children}
+        <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
+          {children}
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

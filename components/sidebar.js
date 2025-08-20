@@ -14,6 +14,7 @@ const Sidebar = () => {
 
   // Play Menu
   const [showPlayMenu, setShowPlayMenu] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
   const playTimeoutRef = useRef(null);
   const playMenuOn = () => {
     toggleAllMenusOff()
@@ -515,7 +516,7 @@ const Sidebar = () => {
             style={{
               width: '100%',
               margin: 0,
-              marginBottom: '0.5rem',
+              marginBottom: '0.75rem',
               cursor:'pointer'
             }}
           >
@@ -552,7 +553,47 @@ const Sidebar = () => {
             </div>
           )}
         </div>
-        <input style={{ width: '100%' }} />
+        <input 
+          className="form-control search-home"
+          style={{ width: '100%', height: '4vh', boxShadow:`none`, marginBottom: '0.75rem', }} 
+          placeholder='Search'
+        />
+        {loggedIn && (
+          <div 
+            className="d-flex justify-content-between" 
+            style={{
+              height:'auto',
+            }}
+          >
+            <div
+              className="convex-red"
+              style={{
+                width: '47%',
+                paddingTop: '',
+                margin: 0,
+                marginBottom: '0.5rem',
+                cursor:'pointer',
+                backgroundColor:`red`
+              }}
+              onClick={() => window.location.href = '/register'}
+            >
+              Sign Up
+            </div>
+            <div
+              className="convex-darkgray"
+              style={{
+                width: '47%',
+                paddingTop: '',
+                margin: 0,
+                marginBottom: '0.5rem',
+                cursor:'pointer'
+              }}
+              onClick={() => window.location.href = '/login'}
+            >
+              Log In
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom buttons */}
