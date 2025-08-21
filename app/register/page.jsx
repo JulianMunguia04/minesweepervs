@@ -11,8 +11,15 @@ const Register = () => {
 
   return(
     <>
-      <div>Sign Up</div>
-      <GoogleLoginButton></GoogleLoginButton>
+      <div 
+        className="d-flex flex-column align-items-center"
+        style={{
+          width: '100vw'
+        }}
+      >
+        <div>Sign Up</div>
+        <GoogleLoginButton></GoogleLoginButton>
+      </div>
     </>
   )
 }
