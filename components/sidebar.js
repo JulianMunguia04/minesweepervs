@@ -1,7 +1,13 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const Sidebar = () => {
+const Sidebar = ({
+  userData
+}
+) => {
+  //Loggin In
+  const [loggedIn, setLoggedIn] = useState(false)
+
   //All Menus
   const toggleAllMenusOff =() => {
     setShowPlayMenu(false);
@@ -14,7 +20,6 @@ const Sidebar = () => {
 
   // Play Menu
   const [showPlayMenu, setShowPlayMenu] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(true);
   const playTimeoutRef = useRef(null);
   const playMenuOn = () => {
     toggleAllMenusOff()
@@ -558,7 +563,7 @@ const Sidebar = () => {
           style={{ width: '100%', height: '4vh', boxShadow:`none`, marginBottom: '0.75rem', }} 
           placeholder='Search'
         />
-        {loggedIn && (
+        {!userData && (
           <div 
             className="d-flex justify-content-between" 
             style={{
@@ -598,6 +603,16 @@ const Sidebar = () => {
 
       {/* Bottom buttons */}
       <div style={{ width: '100%' }}>
+        {userData && <button
+          onClick={async () => {
+            await fetch("/api/logout", { method: "POST", credentials: "include" });
+            // Redirect user to login page or home
+            window.location.href = "/";
+          }}
+        >
+          Sign Out
+        </button>}
+        
         <div>Collapse</div>
         <div>Settings</div>
         <div>Support</div>
