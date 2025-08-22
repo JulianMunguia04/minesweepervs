@@ -51,26 +51,25 @@ function GoogleSignUpButton() {
   return (
     <button
       onClick={() => login()} // trigger Google login
+      className="convex-darkgray "
       style={{
-        width: "100%",             // full width
-        maxWidth: "400px",         // optional max width
+        width: '25vw',
+        height: '6vh',
         padding: "12px 24px",
-        borderRadius: "8px",
-        backgroundColor: "#4285F4", // Google blue
-        color: "white",
+        backgroundColor: "#9E9E9E",
         fontWeight: "bold",
-        border: "none",
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: "8px"
+        gap: "8px",
+        marginTop:'3vh',
       }}
     >
       <img
-        src="/google-logo.svg" // optional Google logo
+        src="/GoogleLogo.png" // optional Google logo
         alt="Google"
-        style={{ width: "20px", height: "20px" }}
+        style={{ height: "100%" }}
       />
       Sign up with Google
     </button>
