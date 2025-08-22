@@ -10,6 +10,8 @@
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?logo=socket.io&logoColor=white&style=for-the-badge)
 ![Google Auth](https://img.shields.io/badge/Google%20Auth-4285F4?logo=google&logoColor=white&style=for-the-badge)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white&style=for-the-badge)
+![bcrypt](https://img.shields.io/badge/bcrypt-3388FF?logo=lock&logoColor=white&style=for-the-badge)
+![JWT](https://img.shields.io/badge/JWT-000000?logo=jsonwebtokens&logoColor=white&style=for-the-badge)
 
 ---
 
