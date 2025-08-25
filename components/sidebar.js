@@ -290,10 +290,27 @@ const Sidebar = ({
               width: '100%',
               margin: 0,
               marginBottom: '0.5rem',
-              cursor:'pointer'
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            Learn
+            <img 
+              src="Learn.png"
+              style={{
+                width: '18%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              Learn
+            </div>
           </div>
           {showLearnMenu && (
             <div
@@ -313,25 +330,62 @@ const Sidebar = ({
               }}
               onMouseLeave={learnMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Minesweeper Tutorial
+                <img 
+                  src="Tutorial.png"
+                  style={{
+                    width: '18%',
+                    paddingLeft: `2%`
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                 Minesweeper Tutorial
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Vs Tutorial
+                <img 
+                  src="Minesweepervslogo.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Vs Tutorial
+                </div>
               </div>
             </div>
           )}
