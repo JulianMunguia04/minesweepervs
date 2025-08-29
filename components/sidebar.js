@@ -402,10 +402,27 @@ const Sidebar = ({
               width: '100%',
               margin: 0,
               marginBottom: '0.5rem',
-              cursor:'pointer'
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            News
+            <img 
+              src="News.png"
+              style={{
+                width: '18%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              News
+            </div>
           </div>
           {showNewsMenu && (
             <div
@@ -425,15 +442,33 @@ const Sidebar = ({
               }}
               onMouseLeave={newsMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                News
+                <img 
+                  src="News.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  News
+                </div>
               </div>
             </div>
           )}
@@ -450,10 +485,27 @@ const Sidebar = ({
               width: '100%',
               margin: 0,
               marginBottom: '0.5rem',
-              cursor:'pointer'
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            Social
+            <img 
+              src="Social.png"
+              style={{
+                width: '18%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              Social
+            </div>
           </div>
           {showSocialMenu && (
             <div
@@ -473,35 +525,89 @@ const Sidebar = ({
               }}
               onMouseLeave={socialMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Friends
+                <img 
+                  src="Friends.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Friends
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Messages
+                <img 
+                  src="Messages.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Messages
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Blog
+                <img 
+                  src="Blog.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Blog
+                </div>
               </div>
             </div>
           )}
