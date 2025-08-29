@@ -63,6 +63,7 @@ export default function Home() {
         {userData && (
           <div>
             <h2>User Info</h2>
+            <img src={userData.profile_picture}></img>
             <p>Username: {userData.username}</p>
             <p>Email: {userData.email}</p>
             <p>ELO: {userData.elo}</p>

@@ -36,6 +36,7 @@ export const createTables = async () => {
         games_won INT DEFAULT 0,
         elo INT DEFAULT 1000,
         avg_points_per_second FLOAT DEFAULT 0,
+        verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`
     ];

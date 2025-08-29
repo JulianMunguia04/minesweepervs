@@ -624,10 +624,28 @@ const Sidebar = ({
               width: '100%',
               margin: 0,
               marginBottom: '0.5rem',
-              cursor:'pointer'
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            My Account
+            <img 
+              src={userData?.profile_picture || "My-Account.png"}
+              style={{
+                width: '18%',
+                borderRadius: '100%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              My Account
+            </div>
           </div>
           {showMyAccountMenu && (
             <div
@@ -647,25 +665,61 @@ const Sidebar = ({
               }}
               onMouseLeave={myAccountMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Statistics
+                <img 
+                  src="Statistics.png"
+                  style={{
+                    width: '18%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Statistics
+                </div>
               </div>
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                Game History
+                <img 
+                  src="History.png"
+                  style={{
+                    width: '14%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  Game History
+                </div>
               </div>
             </div>
           )}
