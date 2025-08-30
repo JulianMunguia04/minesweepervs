@@ -735,11 +735,29 @@ const Sidebar = ({
             style={{
               width: '100%',
               margin: 0,
-              marginBottom: '0.75rem',
-              cursor:'pointer'
+              marginBottom: '0.5rem',
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              padding:'1.5%'
             }}
           >
-            More
+            <img 
+              src="More.png"
+              style={{
+                width: '18%',
+                borderRadius: '100%'
+              }}
+            ></img>
+            <div
+              style={{
+                marginLeft:'5%',
+                fontWeight:'bold',
+                fontSize:'120%'
+              }}
+            >
+              More
+            </div>
           </div>
           {showMoreMenu && (
             <div
@@ -759,15 +777,33 @@ const Sidebar = ({
               }}
               onMouseLeave={moreMenuOff}
             >
-              <div className='convex-minesweeper'
+              <div
+                className="convex-minesweeper"
                 style={{
-                  width: "100%",
-                  height:'auto',
-                  margin:'0px',
-                  marginBottom:'0.5rem'
+                  width: '100%',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  cursor:'pointer',
+                  display:'flex',
+                  alignItems:'center',
+                  padding:'1.5%'
                 }}
               >
-                More
+                <img 
+                  src="More.png"
+                  style={{
+                    width: '14%'
+                  }}
+                ></img>
+                <div
+                  style={{
+                    marginLeft:'5%',
+                    fontWeight:'bold',
+                    fontSize:'120%'
+                  }}
+                >
+                  More
+                </div>
               </div>
             </div>
           )}
@@ -827,9 +863,9 @@ const Sidebar = ({
           Sign Out
         </button>}
         
-        <div>Collapse</div>
-        <div>Settings</div>
-        <div>Support</div>
+        <div style={{cursor:"pointer"}}>Collapse</div>
+        <div style={{cursor:"pointer"}}>Settings</div>
+        <div style={{cursor:"pointer"}}>Support</div>
       </div>
     </div>
   );
