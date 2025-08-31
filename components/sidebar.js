@@ -1,10 +1,13 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const Sidebar = ({
   userData
 }
 ) => {
+  const router = useRouter();
+
   //Loggin In
   const [loggedIn, setLoggedIn] = useState(false)
 
@@ -137,7 +140,7 @@ const Sidebar = ({
           }}
           onClick={() => window.location.href = '/'}
         >
-          <img src="logo-full.png"></img>
+          <img src="/logo-full.png"></img>
         </div>
         {/*Play Menu*/}
         <div
@@ -156,9 +159,10 @@ const Sidebar = ({
               alignItems:'center',
               padding:'1.5%'
             }}
+            onClick={() => router.push('/play')}
           >
             <img 
-              src="play-icon.png"
+              src="/play-icon.png"
               style={{
                 width: '18%'
               }}
@@ -204,7 +208,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="play-online.png"
+                  src="/play-online.png"
                   style={{
                     width: '18%'
                   }}
@@ -232,7 +236,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="play-a-friend.png"
+                  src="/play-a-friend.png"
                   style={{
                     width: '18%'
                   }}
@@ -244,7 +248,7 @@ const Sidebar = ({
                     fontSize:'120%'
                   }}
                 >
-                  Play A Friend
+                  Play a Friend
                 </div>
               </div>
               <div
@@ -260,7 +264,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="variants.png"
+                  src="/variants.png"
                   style={{
                     width: '18%'
                   }}
@@ -297,7 +301,7 @@ const Sidebar = ({
             }}
           >
             <img 
-              src="Learn.png"
+              src="/Learn.png"
               style={{
                 width: '18%'
               }}
@@ -343,7 +347,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Tutorial.png"
+                  src="/Tutorial.png"
                   style={{
                     width: '18%',
                     paddingLeft: `2%`
@@ -372,7 +376,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Minesweepervslogo.png"
+                  src="/Minesweepervslogo.png"
                   style={{
                     width: '18%'
                   }}
@@ -409,7 +413,7 @@ const Sidebar = ({
             }}
           >
             <img 
-              src="News.png"
+              src="/News.png"
               style={{
                 width: '18%'
               }}
@@ -455,7 +459,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="News.png"
+                  src="/News.png"
                   style={{
                     width: '18%'
                   }}
@@ -492,7 +496,7 @@ const Sidebar = ({
             }}
           >
             <img 
-              src="Social.png"
+              src="/Social.png"
               style={{
                 width: '18%'
               }}
@@ -538,7 +542,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Friends.png"
+                  src="/Friends.png"
                   style={{
                     width: '18%'
                   }}
@@ -566,7 +570,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Messages.png"
+                  src="/Messages.png"
                   style={{
                     width: '18%'
                   }}
@@ -594,7 +598,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Blog.png"
+                  src="/Blog.png"
                   style={{
                     width: '18%'
                   }}
@@ -636,7 +640,7 @@ const Sidebar = ({
                 width: '18%',
                 borderRadius: '100%'
               }}
-            ></img>
+            />
             <div
               style={{
                 marginLeft:'5%',
@@ -678,7 +682,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="Statistics.png"
+                  src="/Statistics.png"
                   style={{
                     width: '18%'
                   }}
@@ -706,7 +710,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="History.png"
+                  src="/History.png"
                   style={{
                     width: '14%'
                   }}
@@ -743,7 +747,7 @@ const Sidebar = ({
             }}
           >
             <img 
-              src="More.png"
+              src="/More.png"
               style={{
                 width: '18%',
                 borderRadius: '100%'
@@ -790,7 +794,7 @@ const Sidebar = ({
                 }}
               >
                 <img 
-                  src="More.png"
+                  src="/More.png"
                   style={{
                     width: '14%'
                   }}

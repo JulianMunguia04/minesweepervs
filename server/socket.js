@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import client from '../database/postgresdb.js';
+import pgClient from '../database/postgresdb.js';
+import redis from '../database/redis.js'
 
 const httpServer = createServer();
 
@@ -29,22 +30,3 @@ const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Socket.IO server running on port ${PORT}`);
 });
-
-// const createTables = async ()=>{
-//   try {
-//     // Simple query to create a test table if it doesn't exist
-//     const createTableQuery = `
-//       CREATE TABLE IF NOT EXISTS test_table (
-//         id SERIAL PRIMARY KEY,
-//         message TEXT NOT NULL,
-//         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-//       );
-//     `;
-//     await client.query(createTableQuery);
-//     console.log('✅ test_table ensured in DB');
-//   } catch (err) {
-//     console.error('❌ DB error on socket connection:', err);
-//   }
-// }
-
-// createTables();

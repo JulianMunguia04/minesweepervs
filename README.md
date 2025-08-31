@@ -19,6 +19,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Redis Download
+https://github.com/microsoftarchive/redis/releases?utm_source=chatgpt.com
+
 First, run the development server:
 
 ```bash

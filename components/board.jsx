@@ -160,8 +160,21 @@ const newGame = (setGrid) =>{
   setGrid(tempGrid);
 }
 
-const GamePage = () => {
+const Board = ({gameStarted, gridData}) => {
   const [grid, setGrid] = useState(null);
+
+  useEffect(() => {
+    if (gridData) {
+      const tempGrid = gridData.map(row =>
+        row.map(tile =>
+          new Tile(tile.row, tile.col, tile.value, tile.isBomb, tile.isCovered, tile.isFlagged)
+        )
+      );
+      setGrid(tempGrid);
+    } else {
+      newGame(setGrid);
+    }
+  }, [gridData]);
 
   const newGame = () => {
     const tempGrid = [];
@@ -210,11 +223,15 @@ const GamePage = () => {
             fontWeight: 'bold',
             fontSize: '20px',
             backgroundColor: '#eee',
-            cursor: 'pointer',
+            cursor: gameStarted ? 'pointer' : 'default',
           }}
-          onClick={() => tile.onClick(grid, setGrid, newGame)} //left click
-          onContextMenu={(e) => {                              //right click
+          onClick={() => {
+            if (!gameStarted) return;
+            tile.onClick(grid, setGrid, newGame);
+          }}
+          onContextMenu={(e) => {
             e.preventDefault();
+            if (!gameStarted) return;
             tile.onContextMenu(grid, setGrid);
           }}
         >
@@ -265,4 +282,4 @@ const GamePage = () => {
   )
 }
 
-export default GamePage
+export default Board
