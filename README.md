@@ -1,3 +1,9 @@
+# MinesweeperVs
+
+**MinesweeperVs** is an exciting multiplayer spin on the classic Minesweeper game. Players compete head-to-head in real time, using unique power-ups and strategic moves to outsmart their opponent. Matches are point-based and time-driven, rewarding both speed and accuracy. Beyond the gameplay, MinesweeperVs includes a rich social experience: challenge friends, climb global and friends-only leaderboards, and track your progress and ranking over time.
+
+---
+
 ## 🧰 Tech Stack
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black&style=for-the-badge)
