@@ -1,6 +1,7 @@
 import { Client } from 'pg';
 import dotenv from 'dotenv';
 dotenv.config();
+import { v4 as uuidv4 } from "uuid";
 
 const client = new Client({
   host: process.env.PG_HOST,
@@ -23,7 +24,7 @@ export const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );`,
       `CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY,
         google_id VARCHAR(255) NULL,
         username VARCHAR(50) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -55,16 +56,26 @@ createTables()
 //Email only sign up
 export const emailSignup = async (username, email, password) => {
   try {
+    // Generate a new UUID for the user
+    const id = uuidv4();
+
+    // Ensure required fields are provided
+    if (!username || !email || !password) {
+      return { success: false, message: 'Username, email, and password are required' };
+    }
+
+    // Insert new user
     const insertQuery = `
       INSERT INTO users 
-      (google_id, username, email, password, first_name, last_name, date_of_birth)
-      VALUES (NULL, $1, $2, $3, NULL, NULL, NULL)
+      (id, google_id, username, email, password, first_name, last_name, date_of_birth)
+      VALUES ($1, NULL, $2, $3, $4, NULL, NULL, NULL)
       RETURNING id, username, email, created_at
     `;
 
-    const result = await client.query(insertQuery, [username, email, password]);
+    const result = await client.query(insertQuery, [id, username, email, password]);
 
     return { success: true, user: result.rows[0] };
+
   } catch (err) {
     // Handle duplicate username/email
     if (err.code === '23505') {
@@ -74,7 +85,6 @@ export const emailSignup = async (username, email, password) => {
       if (err.constraint === 'users_email_key') {
         return { success: false, message: 'Email already exists' };
       }
-      // generic unique violation
       return { success: false, message: 'Duplicate value exists' };
     }
 
@@ -133,15 +143,18 @@ export const googleSignup = async (googleUser) => {
       username = `${baseUsername}${count}`;
     }
 
-    // Insert new Google user
+    // Step 4: Insert new Google user with generated UUID
+    const id = uuidv4();
+
     const insertQuery = `
       INSERT INTO users
-      (google_id, username, email, password, first_name, last_name, date_of_birth, profile_picture)
-      VALUES ($1, $2, $3, NULL, $4, $5, NULL, $6)
+      (id, google_id, username, email, password, first_name, last_name, date_of_birth, profile_picture)
+      VALUES ($1, $2, $3, $4, NULL, $5, $6, NULL, $7)
       RETURNING id, google_id, username, email, first_name, last_name, profile_picture, created_at
     `;
 
     const result = await client.query(insertQuery, [
+      id,
       google_id,
       username,
       email,
