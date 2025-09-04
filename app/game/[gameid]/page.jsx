@@ -14,8 +14,8 @@ const Game = () => {
   const [guestData, setGuestData] = useState(null);
   
   useEffect(() => {
-    setGuestData(localStorage.getItem("guest_data"));
-    console.log("gameid: ", gameid)
+    const storedGuest = localStorage.getItem("guest_data");
+    setGuestData(storedGuest ? JSON.parse(storedGuest) : null);
     const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
     fetch(`${FRONTEND_URL}/userdata`, {
@@ -27,17 +27,14 @@ const Game = () => {
       console.log("User data:", data);
       setUserData(data);
     });
-  });
+  }, []);
 
   useEffect(() => {
-    if (!userData){
-      let guestData = localStorage.getItem("guest_data");
-      if (!guestData){
-        console.log("Player not found")
-      }
-      socket.emit("join-game", guestData, gameid)
+    if (gameid && (userData || guestData)) {
+      const player = userData || guestData;
+      socket.emit("join-game", player, gameid);
     }
-  })
+  }, [userData, guestData, gameid]);
 
   return(
     <>

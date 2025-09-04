@@ -75,6 +75,7 @@ const Play = () => {
     socket.on("game-found", (gameId, opponent, game) => {
       console.log(`/game/${gameId}`)
       console.log(gameId)
+      console.log("game: ", game)
       router.push(`/game/${gameId}`);
     });
 

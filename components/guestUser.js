@@ -1,37 +1,37 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const useGuestUser = () => {
   const [guestUser, setGuestUser] = useState(null);
 
   useEffect(() => {
-    // Check if we already have a guest ID in localStorage
+    // Get or create guest ID
     let guestId = localStorage.getItem("guest_id");
-    let elo = localStorage.getItem("guest_elo");
-
     if (!guestId) {
-      guestId = uuidv4(); // generate a new unique ID
+      guestId = uuidv4();
       localStorage.setItem("guest_id", guestId);
     }
 
+    // Get or create ELO
+    let elo = localStorage.getItem("guest_elo");
     if (!elo) {
-      elo = 1000; // default starting ELO
-      localStorage.setItem("guest_elo", elo);
+      elo = 1000;
+      localStorage.setItem("guest_elo", String(elo));
     }
 
-    localStorage.setItem("guest_data",
-      {id: guestId, 
-      username: guestId,
-      elo: parseInt(elo)});
+    const parsedElo = parseInt(elo, 10);
 
-    setGuestUser({ 
-      id: guestId, 
+    const guestData = {
+      id: guestId,
       username: guestId,
-      elo: parseInt(elo) 
-    });
+      elo: parsedElo
+    };
+
+    localStorage.setItem("guest_data", JSON.stringify(guestData));
+    setGuestUser(guestData);
+
   }, []);
 
   return guestUser;

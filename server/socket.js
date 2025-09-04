@@ -51,8 +51,8 @@ io.on('connection', async (socket) => {
       await redis.set(
         `match:${gameId}`,
         JSON.stringify({
-          player1: JSON.stringify(p1),
-          player2: JSON.stringify(p2),
+          player1: p1,
+          player2: p2, 
           player1_board: [], 
           player2_board: [], 
           player1_points: 0,
@@ -76,7 +76,7 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('find-online-game-guest', async (guestData) => {
-    console.log(`🎮 Guest ${guestData.guestId} is searching for a game with ELO ${guestData.elo}`);
+    console.log(`🎮 Guest ${guestData.id} is searching for a game with ELO ${guestData.elo}`);
 
     // Add this guest to the matchmaking queue
     const player = {
@@ -103,15 +103,15 @@ io.on('connection', async (socket) => {
       await redis.set(
         `match:${gameId}`,
         JSON.stringify({
-          player1: JSON.stringify(p1),
-          player2: JSON.stringify(p2),
+          player1: p1,
+          player2: p2,
           player1_board: [], 
           player2_board: [], 
           player1_points: 0,
           player2_points: 0,
           time_left: 300, 
-          player1_state: "playing",
-          player2_state: "playing",
+          player1_state: "waiting",
+          player2_state: "waiting",
           status: "waiting",
           gameId,
         })
@@ -147,30 +147,35 @@ io.on('connection', async (socket) => {
   //Game Joining
   socket.on('join-game', async (playerData, gameId) => {
     let game = JSON.parse(await redis.get(`match:${gameId}`));
-    console.log("game debug ", game)
+    console.log(game)
     if (!game) return socket.emit("error", "Game not found");
 
-    //Check if player is in this game
-    let playerRole;
-    if (game.player1.username === playerData.username) playerRole = "player1";
-    else if (game.player2.username === playerData.username) playerRole = "player2";
-    else return socket.emit("error", "You are not part of this game");
+    if (game.player1.username === playerData.username) {
+      console.log("player one connected")
+      game.player1_state = "ready";
+      game.player1.socketId = socket.id;
+      socket.join(gameId);
+      socket.emit("role", "player1")
+    } else if (game.player2.username === playerData.username) {
+      console.log("player one connected")
+      game.player2_state = "ready";
+      game.player2.socketId = socket.id;
+      socket.join(gameId);
+      socket.emit("role", "player2")
+    } else {
+      return socket.emit("error", "You are not part of this game");
+    }
 
-    await redis.set(
-      `match:${gameId}`,
-      JSON.stringify(game)
-    )
-
-    game = JSON.parse(await redis.get(`match:${gameId}`));
-    console.log("game after connection ", game)
+    // Save updated game
+    await redis.set(`match:${gameId}`, JSON.stringify(game));
 
     // If both players are ready, start the game
     if (game.player1_state === "ready" && game.player2_state === "ready") {
       game.status = "started";
+      console.log("both ready")
       await redis.set(`match:${gameId}`, JSON.stringify(game));
 
-      io.to(game.player1.socketId).emit("game-started", game);
-      io.to(game.player2.socketId).emit("game-started", game);
+      io.to(gameId).emit("game-started", game);
     }
   });
 
