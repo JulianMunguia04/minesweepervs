@@ -8,63 +8,80 @@ import PlayMenu from "../../components/playMenu"
 import Ads from "../../components/adexample"
 import socket from '../socket.js';
 import useGuestUser from '../../components/guestUser.js'
+import { useRouter } from 'next/navigation';
 
 const Play = () => {
   const [userData, setUserData] = useState(null);
   const [searching, setSearching] = useState(false)
 
+  const router = useRouter();
+
   const guestUser = useGuestUser();
   
-    useEffect(() => {
-      const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-  
-      fetch(`${FRONTEND_URL}/userdata`, {
-        method: "GET",
-        credentials: "include"
-      })
-      .then(res => res.json())
-      .then((data) => {
-        console.log("User data:", data);
-        setUserData(data);
-      })
-      .catch((err) => {
-        console.error("❌ Failed to fetch userdata", err);
-      })
-    }, []);
-    
-    useEffect(() => {
-      socket.on('searching-for-online-game', () => {
-        setSearching(true)
-      });
-  
-      return () => {
-        socket.off('searching-for-online-game');
-      };
-    }, []);
+  useEffect(() => {
+    const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-    const findOnlineGame = (userData) =>{
-      if (userData){
-        socket.emit("find-online-game", userData)
-      }else{
-        socket.emit("find-online-game-guest", guestUser)
-      }
+    fetch(`${FRONTEND_URL}/userdata`, {
+      method: "GET",
+      credentials: "include"
+    })
+    .then(res => res.json())
+    .then((data) => {
+      console.log("User data:", data);
+      setUserData(data);
+    })
+    .catch((err) => {
+      console.error("❌ Failed to fetch userdata", err);
+    })
+  }, []);
+  
+  useEffect(() => {
+    socket.on('searching-for-online-game', () => {
+      setSearching(true)
+    });
+
+    return () => {
+      socket.off('searching-for-online-game');
+    };
+  }, []);
+
+  const findOnlineGame = (userData) =>{
+    if (userData){
+      socket.emit("find-online-game", userData)
+      console.log("searching")
+    }else{
+      socket.emit("find-online-game-guest", guestUser)
+      console.log("searching")
     }
+  }
 
-    const leaveOnlineGameQueue = () =>{
-      console.log("leave queue button")
-      socket.emit("leave-queue")
-    }
+  const leaveOnlineGameQueue = () =>{
+    console.log("leave queue button")
+    socket.emit("leave-queue")
+  }
 
-    useEffect(() => {
-      socket.on("left-queue", () => {
-        setSearching(false)
-        console.log("left queeue")
-      });
-  
-      return () => {
-        socket.off("left-queue");
-      };
-    }, []);
+  useEffect(() => {
+    socket.on("left-queue", () => {
+      setSearching(false)
+      console.log("left queeue")
+    });
+
+    return () => {
+      socket.off("left-queue");
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("game-found", (gameId, opponent, game) => {
+      console.log(`/game/${gameId}`)
+      console.log(gameId)
+      router.push(`/game/${gameId}`);
+    });
+
+    return () => {
+      socket.off("game-found");
+    };
+  }, []);
 
   return(
     <>

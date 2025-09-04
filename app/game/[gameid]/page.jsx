@@ -5,26 +5,39 @@ import { useState, useEffect } from 'react';
 import Sidebar from "../../../components/sidebar"
 import Board from "../../../components/board"
 import { useParams } from "next/navigation";
+import socket from '../../socket';
 
 const Game = () => {
   const params = useParams();
-  const { id } = params;
+  const { gameid } = params;
   const [userData, setUserData] = useState(null);
+  const [guestData, setGuestData] = useState(null);
   
-    useEffect(() => {
-      console.log("id: ", id)
-      const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-  
-      fetch(`${FRONTEND_URL}/userdata`, {
-        method: "GET",
-        credentials: "include"
-      })
-      .then(res => res.json())
-      .then((data) => {
-        console.log("User data:", data);
-        setUserData(data);
-      });
-    }, []);
+  useEffect(() => {
+    setGuestData(localStorage.getItem("guest_data"));
+    console.log("gameid: ", gameid)
+    const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+    fetch(`${FRONTEND_URL}/userdata`, {
+      method: "GET",
+      credentials: "include"
+    })
+    .then(res => res.json())
+    .then((data) => {
+      console.log("User data:", data);
+      setUserData(data);
+    });
+  });
+
+  useEffect(() => {
+    if (!userData){
+      let guestData = localStorage.getItem("guest_data");
+      if (!guestData){
+        console.log("Player not found")
+      }
+      socket.emit("join-game", guestData, gameid)
+    }
+  })
 
   return(
     <>

@@ -22,7 +22,16 @@ const useGuestUser = () => {
       localStorage.setItem("guest_elo", elo);
     }
 
-    setGuestUser({ guestId, elo: parseInt(elo) });
+    localStorage.setItem("guest_data",
+      {id: guestId, 
+      username: guestId,
+      elo: parseInt(elo)});
+
+    setGuestUser({ 
+      id: guestId, 
+      username: guestId,
+      elo: parseInt(elo) 
+    });
   }, []);
 
   return guestUser;
