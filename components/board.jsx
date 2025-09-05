@@ -209,6 +209,10 @@ const Board = ({gameStarted: initialGameStarted, gridData}) => {
   const [activePowerUps, setActivePowerUps] = useState([]);
   const [bombsLeftCount, setBombsLeftCount] = useState(0);
 
+  useEffect(() => {
+    setGameStarted(initialGameStarted);
+  }, [initialGameStarted]);
+
   useEffect(()=>{
     if (grid){
       let currentBombsLeftCount = 0

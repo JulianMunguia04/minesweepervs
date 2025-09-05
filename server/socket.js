@@ -26,10 +26,11 @@ io.on('connection', async (socket) => {
 
     // Add this user to the matchmaking queue
     const player = {
-      id: userData.id,
+      id: userData.username,
       username: userData.username,
       elo: userData.elo,
       socketId: socket.id,
+      profilePicture: userData.profile_picture
     };
     await redis.rPush("matchmaking_queue", JSON.stringify(player));
 
@@ -53,8 +54,8 @@ io.on('connection', async (socket) => {
         JSON.stringify({
           player1: p1,
           player2: p2, 
-          player1_board: [], 
-          player2_board: [], 
+          player1_board: null, 
+          player2_board: null, 
           player1_points: 0,
           player2_points: 0,
           time_left: 300, 
@@ -76,11 +77,11 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('find-online-game-guest', async (guestData) => {
-    console.log(`🎮 Guest ${guestData.id} is searching for a game with ELO ${guestData.elo}`);
+    console.log(`🎮 Guest ${guestData.username} is searching for a game with ELO ${guestData.elo}`);
 
     // Add this guest to the matchmaking queue
     const player = {
-      id: guestData.id,
+      id: guestData.username,
       username: guestData.username,
       elo: guestData.elo,
       socketId: socket.id,
@@ -105,8 +106,8 @@ io.on('connection', async (socket) => {
         JSON.stringify({
           player1: p1,
           player2: p2,
-          player1_board: [], 
-          player2_board: [], 
+          player1_board: null, 
+          player2_board: null, 
           player1_points: 0,
           player2_points: 0,
           time_left: 300, 
@@ -154,12 +155,14 @@ io.on('connection', async (socket) => {
       console.log("player one connected")
       game.player1_state = "ready";
       game.player1.socketId = socket.id;
+      socket.role = "player1"
       socket.join(gameId);
       socket.emit("role", "player1")
     } else if (game.player2.username === playerData.username) {
       console.log("player one connected")
       game.player2_state = "ready";
       game.player2.socketId = socket.id;
+      socket.role = "player2"
       socket.join(gameId);
       socket.emit("role", "player2")
     } else {
@@ -175,7 +178,7 @@ io.on('connection', async (socket) => {
       console.log("both ready")
       await redis.set(`match:${gameId}`, JSON.stringify(game));
 
-      io.to(gameId).emit("game-started", game);
+      io.to(gameId).emit("game-started", game, socket.role);
     }
   });
 
