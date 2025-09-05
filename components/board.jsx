@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useState, useEffect } from 'react';
+import { memo } from 'react';
 
 class Tile {
   constructor(row, col, value, isBomb, isCovered, isFlagged, isPowerUp, powerUpType, isPowerUpUsed) {
@@ -16,7 +17,8 @@ class Tile {
     this.isPowerUpUsed = isPowerUpUsed;
   }
 
-  onClick = (grid, setGrid, newGame, activatePowerUp) => {
+  onClick = (grid, setGrid, newGame, activatePowerUp, points, setPoints) => {
+    let currentPoints = Number(points);
     const tempGrid = grid.map(row =>
       row.map(tile =>
         new Tile(tile.row, tile.col, tile.value, tile.isBomb, tile.isCovered, tile.isFlagged, tile.isPowerUp, tile.powerUpType, tile.isPowerUpUsed)
@@ -40,9 +42,14 @@ class Tile {
 
       if (!clickedTile.isBomb){
         clickedTile.isCovered = false;
+        let currentPoints = Number(points);
+        currentPoints += clickedTile.value * 10;
+        setPoints(currentPoints)
       }
       else {
         clickedTile.isCovered = false;
+        currentPoints -= 500;
+        setPoints(currentPoints)
         setGrid(tempGrid)
         setTimeout(()=>{
           newGame(setGrid);
@@ -50,13 +57,15 @@ class Tile {
         return;
       }
       if (clickedTile.value === 0) {
-        this.floodReveal(grid, setGrid);
+        this.floodReveal(grid, setGrid, points, setPoints);
       } else {
         setGrid(tempGrid);
       }
 
       if (checkWin(tempGrid)) {
         alert("🎉 You won!");
+        currentPoints += 1500;
+        setPoints(currentPoints)
         newGame(setGrid);
       }
     }
@@ -76,7 +85,7 @@ class Tile {
     setGrid(tempGrid);
   }
 
-  floodReveal = (grid, setGrid) => {
+  floodReveal = (grid, setGrid, points, setPoints) => {
     const tempGrid = grid.map(row => row.map(tile => ({ ...tile })));
     const queue = [];
     const visited = new Set();
@@ -85,6 +94,7 @@ class Tile {
 
     queue.push([this.row, this.col]);
 
+    let currentPoints = Number(points);
     while (queue.length > 0) {
       const [r, c] = queue.shift();
       if (r < 0 || r >= ROWS || c < 0 || c >= COLUMNS) continue;
@@ -95,6 +105,7 @@ class Tile {
 
       if (!tile.isBomb) {
         tile.isCovered = false;
+        currentPoints += tile.value * 10;
         // if it's 0, add neighbors to queue
         if (tile.value === 0) {
           for (let dr = -1; dr <= 1; dr++) {
@@ -107,7 +118,7 @@ class Tile {
         }
       }
     }
-
+    setPoints(currentPoints)
     setGrid(tempGrid);
   };
 }
@@ -203,7 +214,7 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = ({gameStarted: initialGameStarted, gridData}) => {
+const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints}) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -314,11 +325,19 @@ const Board = ({gameStarted: initialGameStarted, gridData}) => {
     newGame();
   }, []);
 
+  useEffect(() => {
+    if (grid && points !== null) {
+      sendUpdatedBoard(grid, points)
+      console.log("Sent board and points to the socket:",  grid, points );
+    }
+  }, [grid]);
+
   if (!grid) return <div>Loading grid...</div>;
 
   return (
     <div>  
       <div>Bombs Left: {bombsLeftCount}</div>
+      <div>Points: {points}</div>
       <div
         style={{
           display: 'grid',
@@ -342,7 +361,7 @@ const Board = ({gameStarted: initialGameStarted, gridData}) => {
             }}
             onClick={() => {
               if (!gameStarted) return;
-              tile.onClick(grid, setGrid, newGame, activatePowerUp);
+              tile.onClick(grid, setGrid, newGame, activatePowerUp, points, setPoints);
             }}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -416,6 +435,6 @@ const Board = ({gameStarted: initialGameStarted, gridData}) => {
       </div>
     </div>
   )
-}
+})
 
 export default Board

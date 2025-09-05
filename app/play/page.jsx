@@ -95,8 +95,9 @@ const Play = () => {
           style={{ gap: "5%", height: "100vh", marginRight: "36vw"}}
         >
           <Board
-            gameStarted = {true}
+            gameStarted = {false}
             gridData = {null}
+            sendUpdatedBoard = {console.log}
           />
         </div>
       </main>

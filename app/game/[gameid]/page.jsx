@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from "../../../components/sidebar"
 import Board from "../../../components/board"
 import { useParams } from "next/navigation";
@@ -22,7 +22,10 @@ const Game = () => {
   const [opponentElo, setOpponentElo] = useState(1000)
 
   const [profilePicture, setProfilePicture] = useState(null)
-  const [opponentProfilePicture, setOpponentProfilePicture] = useState(null)
+  const [opponentProfilePicture, setOpponentProfilePicture] = useState(null);
+
+  const [points, setPoints] = useState(0);
+  const [opponentPoints, setOpponentPoints]= useState(0);
   
   useEffect(() => {
     const storedGuest = localStorage.getItem("guest_data");
@@ -97,6 +100,39 @@ const Game = () => {
     };
   }, []);
 
+  //Communcation to other player
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  const sendUpdatedBoard = useCallback(
+    debounce((grid, points) => {
+      socket.emit("update-board", grid, points, gameid, playerNumber);
+    }, 10),
+    [gameid, playerNumber]
+  );
+
+  //Receiving opponet cha
+  useEffect(() => {
+    socket.on("opponent-board-updated", (grid, points)=>{
+      console.log("Updated board", grid, points)
+      setOpponentPoints(points)
+      setOpponentGridData(grid)
+    })
+
+    return () => {
+      socket.off("opponent-board-updated");
+    };
+  }, []);
+
   return(
     <>
       <Sidebar 
@@ -107,10 +143,16 @@ const Game = () => {
           <Board
             gameStarted = {gameStarted}
             gridData = {gridData}
+            sendUpdatedBoard = {sendUpdatedBoard}
+            points={points}
+            setPoints={setPoints}
           />
           <Board
             gameStarted = {gameStarted}
             gridData = {opponentGridData}
+            sendUpdatedBoard = {()=>{}}
+            points={opponentPoints}
+            setPoints={setOpponentPoints}
           />
         </div>
       </main>

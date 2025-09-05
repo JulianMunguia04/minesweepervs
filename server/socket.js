@@ -182,6 +182,23 @@ io.on('connection', async (socket) => {
     }
   });
 
+  //Playing Game
+  socket.on("update-board", async (grid, points, gameId, playerNumber) =>{
+    let game = JSON.parse(await redis.get(`match:${gameId}`));
+    if (game){
+      if (playerNumber === "player1"){
+        game.player1_points = points;
+        game.player1_board = grid;
+        socket.broadcast.to(gameId).emit("opponent-board-updated", grid, points );
+      }else if (playerNumber === "player2"){
+        game.player2_points = points;
+        game.player2_board = grid;
+        socket.broadcast.to(gameId).emit("opponent-board-updated", grid, points );
+      }
+    }
+    await redis.set(`match:${gameId}`, JSON.stringify(game));
+  });
+
 
   socket.on('disconnect', async () => {
     console.log('❌ Socket disconnected:', socket.id);
