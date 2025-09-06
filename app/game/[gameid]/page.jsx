@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react'
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from "../../../components/sidebar"
 import Board from "../../../components/board"
 import { useParams } from "next/navigation";
@@ -30,6 +30,15 @@ const Game = () => {
 
   const [frozen, setFrozen] = useState(false)
   const [opponentFrozen, setOpponentFrozen] = useState(false)
+
+  const [shield, setShield] = useState(false);
+  const [opponentShield, setOpponentShield] = useState(false);
+
+  const shieldRef = useRef(shield);
+
+  useEffect(() => {
+    shieldRef.current = shield;
+  }, [shield]);
   
   useEffect(() => {
     const storedGuest = localStorage.getItem("guest_data");
@@ -140,23 +149,62 @@ const Game = () => {
   const freezeOpponent = () => {
     const freezeTime = 5000
     socket.emit("freeze-opponent", gameid, freezeTime)
-    setOpponentFrozen(true)
-    setTimeout(()=>{
-      setOpponentFrozen(false)
-    }, freezeTime)
+    if (!opponentShield){
+      setOpponentFrozen(true)
+      setTimeout(()=>{
+        setOpponentFrozen(false)
+      }, freezeTime)
+    }
+    
   }
 
   useEffect(() => {
     socket.on("freeze", (freezeTime)=>{
-      console.log("frozen receivedd")
-      setFrozen(true)
-      setTimeout(()=>{
-        setFrozen(false)
-      }, freezeTime)
+      console.log("frozen received")
+      if (!shieldRef.current) {
+        console.log("shield", shield)
+        setFrozen(true)
+        setTimeout(()=>{
+          setFrozen(false)
+        }, freezeTime)
+      }
     })
 
     return () => {
       socket.off("freeze");
+    };
+  }, []);
+
+  const activateShield = ()=>{
+    const shieldTime = 5000
+    socket.emit("shield", gameid, shieldTime)
+  }
+
+  useEffect(() => {
+    socket.on("self-shield", (shieldTime) => {
+      console.log("✅ Shield activated on my side");
+      setShield(true);
+      setTimeout(() => {
+        setShield(false);
+      }, shieldTime);
+    });
+
+    return () => {
+      socket.off("self-shield");
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("opponent-shield", (shieldTime)=>{
+      console.log("frozen receivedd")
+      setOpponentShield(true)
+      setTimeout(()=>{
+        setOpponentShield(false)
+      }, shieldTime)
+    })
+
+    return () => {
+      socket.off("opponent-shield");
     };
   }, []);
 
@@ -175,6 +223,8 @@ const Game = () => {
             setPoints={setPoints}
             frozen={frozen}
             freezeOpponent={freezeOpponent}
+            shield={shield}
+            activateShield={activateShield}
           />
           <OpponentBoard
             gameStarted = {false}
@@ -183,6 +233,7 @@ const Game = () => {
             points={opponentPoints}
             setPoints={setOpponentPoints}
             frozen={opponentFrozen}
+            shield={opponentShield}
           />
         </div>
       </main>

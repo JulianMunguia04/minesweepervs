@@ -265,7 +265,7 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent}) => {
+const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent, shield, activateShield}) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -323,8 +323,7 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
         // You can implement the actual effect here
         break;
       case 'defensive-shield':
-        alert('Defended from opponents freeze and smoke and cliker for 10 seconds');
-        // You can implement the actual effect here
+          activateShield()
         break;
       case 'clicker':
         alert('Click the opponents tile once');
@@ -387,8 +386,11 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
     <div>  
       <div>Bombs Left: {bombsLeftCount}</div>
       <div>Points: {points}</div>
+      {shield && (
+        <div>Shield</div>
+      )};
       <div style={{ position: 'relative', display: 'inline-block' }}>
-                {frozen && (
+        {frozen && (
           <div
             style={{
               position: 'absolute',

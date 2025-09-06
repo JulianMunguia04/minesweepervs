@@ -262,7 +262,7 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen}) => {
+const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, shield}) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -385,6 +385,9 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
     <div>  
       <div>Bombs Left: {bombsLeftCount}</div>
       <div>Points: {points}</div>
+      {shield && (
+        <div>Shield</div>
+      )};
       <div style={{ position: 'relative', display: 'inline-block' }}>
         {frozen && (
           <div

@@ -61,6 +61,8 @@ io.on('connection', async (socket) => {
           time_left: 300, 
           player1_state: "waiting",
           player2_state: "waiting",
+          player1_shield: false,
+          player2_shield: false,
           status: "waiting",
           gameId: gameId,
         })
@@ -113,6 +115,8 @@ io.on('connection', async (socket) => {
           time_left: 300, 
           player1_state: "waiting",
           player2_state: "waiting",
+          player1_shield: false,
+          player2_shield: false,
           status: "waiting",
           gameId: gameId,
         })
@@ -219,6 +223,33 @@ io.on('connection', async (socket) => {
         game.player1_state = "playing"
         await redis.set(`match:${gameId}`, JSON.stringify(game));
       }, freezeTime)
+    }
+  })
+
+  socket.on("shield", async (gameid, shieldTime)=>{
+    let game = JSON.parse(await redis.get(`match:${gameid}`));
+    if (socket.role === "player1"){
+      game.player1_shield = true
+      socket.emit("self-shield", shieldTime);
+      socket.broadcast.to(gameid).emit("opponent-shield", shieldTime)
+      await redis.set(`match:${gameid}`, JSON.stringify(game));
+
+      setTimeout(async ()=>{
+        JSON.parse(await redis.get(`match:${gameid}`));
+        game.player1_shield = false
+        await redis.set(`match:${gameid}`, JSON.stringify(game));
+      }, shieldTime)
+    }else if (socket.role === "player2"){
+      game.player2_shield = true
+      socket.emit("self-shield", shieldTime);
+      socket.broadcast.to(gameid).emit("opponent-shield", shieldTime)
+      await redis.set(`match:${gameid}`, JSON.stringify(game));
+
+      setTimeout(async ()=>{
+        JSON.parse(await redis.get(`match:${gameid}`));
+        game.player2_shield = false
+        await redis.set(`match:${gameid}`, JSON.stringify(game));
+      }, shieldTime)
     }
   })
 
