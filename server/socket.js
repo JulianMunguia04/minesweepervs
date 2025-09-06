@@ -59,10 +59,10 @@ io.on('connection', async (socket) => {
           player1_points: 0,
           player2_points: 0,
           time_left: 300, 
-          player1_state: "playing",
-          player2_state: "playing",
+          player1_state: "waiting",
+          player2_state: "waiting",
           status: "waiting",
-          gameId,
+          gameId: gameId,
         })
       );
 
@@ -114,7 +114,7 @@ io.on('connection', async (socket) => {
           player1_state: "waiting",
           player2_state: "waiting",
           status: "waiting",
-          gameId,
+          gameId: gameId,
         })
       );
 
@@ -198,6 +198,29 @@ io.on('connection', async (socket) => {
     }
     await redis.set(`match:${gameId}`, JSON.stringify(game));
   });
+
+  socket.on("freeze-opponent", async (gameId, freezeTime)=>{
+    let game = JSON.parse(await redis.get(`match:${gameId}`));
+    if (socket.role === "player1"){
+      game.player2_state = "frozen"
+      await redis.set(`match:${gameId}`, JSON.stringify(game));
+      socket.broadcast.to(gameId).emit("freeze", freezeTime)
+      setTimeout(async ()=>{
+        let game = JSON.parse(await redis.get(`match:${gameId}`));
+        game.player2_state = "playing"
+        await redis.set(`match:${gameId}`, JSON.stringify(game));
+      }, freezeTime)
+    }else if (socket.role === "player2"){
+      game.player1_state = "frozen"
+      await redis.set(`match:${gameId}`, JSON.stringify(game));
+      socket.broadcast.to(gameId).emit("freeze", freezeTime)
+      setTimeout(async ()=>{
+        JSON.parse(await redis.get(`match:${gameId}`));
+        game.player1_state = "playing"
+        await redis.set(`match:${gameId}`, JSON.stringify(game));
+      }, freezeTime)
+    }
+  })
 
 
   socket.on('disconnect', async () => {

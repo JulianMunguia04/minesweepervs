@@ -6,6 +6,7 @@ import Sidebar from "../../../components/sidebar"
 import Board from "../../../components/board"
 import { useParams } from "next/navigation";
 import socket from '../../socket';
+import OpponentBoard from "../../../components/opponentBoard"
 
 const Game = () => {
   const params = useParams();
@@ -26,6 +27,9 @@ const Game = () => {
 
   const [points, setPoints] = useState(0);
   const [opponentPoints, setOpponentPoints]= useState(0);
+
+  const [frozen, setFrozen] = useState(false)
+  const [opponentFrozen, setOpponentFrozen] = useState(false)
   
   useEffect(() => {
     const storedGuest = localStorage.getItem("guest_data");
@@ -133,6 +137,29 @@ const Game = () => {
     };
   }, []);
 
+  const freezeOpponent = () => {
+    const freezeTime = 5000
+    socket.emit("freeze-opponent", gameid, freezeTime)
+    setOpponentFrozen(true)
+    setTimeout(()=>{
+      setOpponentFrozen(false)
+    }, freezeTime)
+  }
+
+  useEffect(() => {
+    socket.on("freeze", (freezeTime)=>{
+      console.log("frozen receivedd")
+      setFrozen(true)
+      setTimeout(()=>{
+        setFrozen(false)
+      }, freezeTime)
+    })
+
+    return () => {
+      socket.off("freeze");
+    };
+  }, []);
+
   return(
     <>
       <Sidebar 
@@ -146,13 +173,16 @@ const Game = () => {
             sendUpdatedBoard = {sendUpdatedBoard}
             points={points}
             setPoints={setPoints}
+            frozen={frozen}
+            freezeOpponent={freezeOpponent}
           />
-          <Board
-            gameStarted = {gameStarted}
+          <OpponentBoard
+            gameStarted = {false}
             gridData = {opponentGridData}
             sendUpdatedBoard = {()=>{}}
             points={opponentPoints}
             setPoints={setOpponentPoints}
+            frozen={opponentFrozen}
           />
         </div>
       </main>

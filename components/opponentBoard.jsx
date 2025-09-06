@@ -35,9 +35,6 @@ class Tile {
           clickedTile.isCovered = false;
           clickedTile.isPowerUpUsed = true;
           activatePowerUp(clickedTile.powerUpType, clickedTile, tempGrid);
-          if (!(clickedTile.powerUpType === 'flag-reveal')){
-            setGrid(tempGrid);
-          }
         }
         return;
       }
@@ -265,7 +262,7 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent}) => {
+const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen}) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -313,7 +310,8 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
     // Implement different effects for different power-ups
     switch(powerUpType) {
       case 'freeze':
-        freezeOpponent() 
+        alert('Freeze other player');
+        // You can implement the actual effect here 
         break;
       case 'flag-reveal':
           flagRevealPowerUp(grid, setGrid)
@@ -388,7 +386,7 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
       <div>Bombs Left: {bombsLeftCount}</div>
       <div>Points: {points}</div>
       <div style={{ position: 'relative', display: 'inline-block' }}>
-                {frozen && (
+        {frozen && (
           <div
             style={{
               position: 'absolute',
@@ -427,7 +425,7 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
               }}
               onClick={() => {
                 if (!gameStarted) return;
-                tile.onClick(grid, setGrid, newGame, activatePowerUp, points, setPoints, freezeOpponent);
+                tile.onClick(grid, setGrid, newGame, activatePowerUp, points, setPoints);
               }}
               onContextMenu={(e) => {
                 e.preventDefault();
