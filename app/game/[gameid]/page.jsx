@@ -36,6 +36,11 @@ const Game = () => {
 
   const shieldRef = useRef(shield);
 
+  const [smokescreen, setSmokescreen] = useState(false)
+  const [opponentSmokescreen, setOpponentSmokescreen] = useState(false);
+
+  const smokescreenRef = useRef(smokescreen)
+
   useEffect(() => {
     shieldRef.current = shield;
   }, [shield]);
@@ -175,6 +180,34 @@ const Game = () => {
     };
   }, []);
 
+  const smokescreenOpponent = () => {
+    const smokescreenTime = 5000
+    socket.emit("smokescreen-opponent", gameid, smokescreenTime)
+    if (!opponentShield){
+      setOpponentSmokescreen(true)
+      setTimeout(()=>{
+        setOpponentSmokescreen(false)
+      }, smokescreenTime)
+    }
+  }
+
+  useEffect(() => {
+    socket.on("smokescreen", (smokescreenTime)=>{
+      console.log("smokescreen received")
+      if (!smokescreenRef.current) {
+        console.log("smokescreen", smokescreen)
+        setSmokescreen(true)
+        setTimeout(()=>{
+          setSmokescreen(false)
+        }, smokescreenTime)
+      }
+    })
+
+    return () => {
+      socket.off("smokescreen");
+    };
+  }, []);
+
   const activateShield = ()=>{
     const shieldTime = 5000
     socket.emit("shield", gameid, shieldTime)
@@ -225,6 +258,8 @@ const Game = () => {
             freezeOpponent={freezeOpponent}
             shield={shield}
             activateShield={activateShield}
+            smokescreenOpponent={smokescreenOpponent}
+            smokescreen={smokescreen}
           />
           <OpponentBoard
             gameStarted = {false}
@@ -234,6 +269,7 @@ const Game = () => {
             setPoints={setOpponentPoints}
             frozen={opponentFrozen}
             shield={opponentShield}
+            smokescreen={opponentSmokescreen}
           />
         </div>
       </main>

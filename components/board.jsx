@@ -265,7 +265,7 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent, shield, activateShield}) => {
+const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent, shield, activateShield, smokescreenOpponent, smokescreen}) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -319,7 +319,7 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
           flagRevealPowerUp(grid, setGrid)
         break;
       case 'smokescreen':
-        alert('Oppenents board blinded');
+        smokescreenOpponent()
         // You can implement the actual effect here
         break;
       case 'defensive-shield':
@@ -487,7 +487,31 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
                       width: '100%',
                     }}
                 ></div>
-              ) : (
+              ) : smokescreen & tile.value > 0 ? (
+                <div
+                  style={{
+                    position: 'relative',
+                    backgroundImage: `url("/game_images/empty-block.png")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    height: '100%',
+                    width: '100%',
+                  }}
+                >
+                  <img
+                    src="/game_images/smokescreen-activated.png"
+                    alt="Overlay"
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      left: '0',
+                      width: '100%',
+                      height: '100%',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                </div>
+              ):(
                 <div
                   style={{
                       backgroundImage: `url("/game_images/${tile.value}.png")`,

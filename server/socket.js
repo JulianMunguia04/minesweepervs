@@ -226,6 +226,29 @@ io.on('connection', async (socket) => {
     }
   })
 
+  socket.on("smokescreen-opponent", async (gameId, smokescreenTime)=>{
+    let game = JSON.parse(await redis.get(`match:${gameId}`));
+    if (socket.role === "player1"){
+      game.player2_state = "smokescreen"
+      await redis.set(`match:${gameId}`, JSON.stringify(game));
+      socket.broadcast.to(gameId).emit("smokescreen", smokescreenTime)
+      setTimeout(async ()=>{
+        let game = JSON.parse(await redis.get(`match:${gameId}`));
+        game.player2_state = "playing"
+        await redis.set(`match:${gameId}`, JSON.stringify(game));
+      }, smokescreenTime)
+    }else if (socket.role === "player2"){
+      game.player1_state = "smokescreen"
+      await redis.set(`match:${gameId}`, JSON.stringify(game));
+      socket.broadcast.to(gameId).emit("smokescreen", smokescreenTime)
+      setTimeout(async ()=>{
+        JSON.parse(await redis.get(`match:${gameId}`));
+        game.player1_state = "playing"
+        await redis.set(`match:${gameId}`, JSON.stringify(game));
+      }, smokescreenTime)
+    }
+  })
+
   socket.on("shield", async (gameid, shieldTime)=>{
     let game = JSON.parse(await redis.get(`match:${gameid}`));
     if (socket.role === "player1"){
