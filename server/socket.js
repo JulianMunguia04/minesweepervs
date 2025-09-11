@@ -63,6 +63,8 @@ io.on('connection', async (socket) => {
           player2_state: "waiting",
           player1_shield: false,
           player2_shield: false,
+          player1_clicker: false,
+          player2_clicker: false,
           status: "waiting",
           gameId: gameId,
         })
@@ -117,6 +119,8 @@ io.on('connection', async (socket) => {
           player2_state: "waiting",
           player1_shield: false,
           player2_shield: false,
+          player1_clicker: false,
+          player2_clicker: false,
           status: "waiting",
           gameId: gameId,
         })
@@ -203,6 +207,22 @@ io.on('connection', async (socket) => {
     await redis.set(`match:${gameId}`, JSON.stringify(game));
   });
 
+  socket.on("opponent-update-board", async (grid, points, gameId, playerNumber) =>{
+    let game = JSON.parse(await redis.get(`match:${gameId}`));
+    if (game){
+      if (playerNumber === "player1"){
+        game.player2_points = points;
+        game.player2_board = grid;
+        socket.broadcast.to(gameId).emit("board-updated", grid, points );
+      }else if (playerNumber === "player2"){
+        game.player1_points = points;
+        game.player2_board = grid;
+        socket.broadcast.to(gameId).emit("board-updated", grid, points );
+      }
+    }
+    await redis.set(`match:${gameId}`, JSON.stringify(game));
+  });
+
   socket.on("freeze-opponent", async (gameId, freezeTime)=>{
     let game = JSON.parse(await redis.get(`match:${gameId}`));
     if (socket.role === "player1"){
@@ -273,6 +293,33 @@ io.on('connection', async (socket) => {
         game.player2_shield = false
         await redis.set(`match:${gameid}`, JSON.stringify(game));
       }, shieldTime)
+    }
+  })
+
+  socket.on("clicker", async (gameid, clickerTime)=>{
+    let game = JSON.parse(await redis.get(`match:${gameid}`));
+    if (socket.role === "player1"){
+      game.player1_clicker = true
+      socket.emit("self-clicker", clickerTime);
+      socket.broadcast.to(gameid).emit("opponent-clicker", clickerTime)
+      await redis.set(`match:${gameid}`, JSON.stringify(game));
+
+      setTimeout(async () => {
+        const game = JSON.parse(await redis.get(`match:${gameid}`));
+        game.player1_clicker = false;
+        await redis.set(`match:${gameid}`, JSON.stringify(game));
+      }, clickerTime);
+    }else if (socket.role === "player2"){
+      game.player2_clicker = true
+      socket.emit("self-clicker", clickerTime);
+      socket.broadcast.to(gameid).emit("opponent-clicker", clickerTime)
+      await redis.set(`match:${gameid}`, JSON.stringify(game));
+
+      setTimeout(async () => {
+        const game = JSON.parse(await redis.get(`match:${gameid}`));
+        game.player2_clicker = false;
+        await redis.set(`match:${gameid}`, JSON.stringify(game));
+      }, clickerTime);
     }
   })
 

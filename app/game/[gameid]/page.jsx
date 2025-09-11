@@ -41,6 +41,12 @@ const Game = () => {
 
   const smokescreenRef = useRef(smokescreen)
 
+  const [clicker, setClicker] = useState(false)
+  const [opponentClicker, setOpponentClicker] = useState(false);
+
+  const clickerRef = useRef(clicker)
+  const lastUpdateFromClickerRef = useRef(false);
+
   useEffect(() => {
     shieldRef.current = shield;
   }, [shield]);
@@ -138,6 +144,13 @@ const Game = () => {
     [gameid, playerNumber]
   );
 
+  const sendOpponentUpdatedBoard = useCallback(
+    debounce((grid, points) => {
+      socket.emit("opponent-update-board", grid, points, gameid, playerNumber);
+    }, 10),
+    [gameid, playerNumber]
+  ); 
+
   //Receiving opponet cha
   useEffect(() => {
     socket.on("opponent-board-updated", (grid, points)=>{
@@ -148,6 +161,19 @@ const Game = () => {
 
     return () => {
       socket.off("opponent-board-updated");
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("board-updated", (grid, points) => {
+      console.log("update from opponent clicker");
+      lastUpdateFromClickerRef.current = true;
+      setPoints(points);
+      setGridData(grid);
+    });
+
+    return () => {
+      socket.off("board-updated");
     };
   }, []);
 
@@ -213,6 +239,11 @@ const Game = () => {
     socket.emit("shield", gameid, shieldTime)
   }
 
+  const activateClicker = ()=>{
+    const clickerTime = 2000
+    socket.emit("clicker", gameid, clickerTime)
+  }
+
   useEffect(() => {
     socket.on("self-shield", (shieldTime) => {
       console.log("✅ Shield activated on my side");
@@ -241,6 +272,34 @@ const Game = () => {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on("self-clicker", (clickerTime) => {
+      console.log("✅ Clicker activated on my side");
+      setClicker(true);
+      setTimeout(() => {
+        setClicker(false);
+      }, clickerTime);
+    });
+
+    return () => {
+      socket.off("self-clicker");
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("opponent-clicker", (clickerTime)=>{
+      console.log("clicker receivedd")
+      setOpponentClicker(true)
+      setTimeout(()=>{
+        setOpponentClicker(false)
+      }, clickerTime)
+    })
+
+    return () => {
+      socket.off("opponent-clicker");
+    };
+  }, []);
+
   return(
     <>
       <Sidebar 
@@ -260,16 +319,20 @@ const Game = () => {
             activateShield={activateShield}
             smokescreenOpponent={smokescreenOpponent}
             smokescreen={smokescreen}
+            clicker={clicker}
+            activateClicker={activateClicker}
+            lastUpdateFromClickerRef={lastUpdateFromClickerRef}
           />
           <OpponentBoard
-            gameStarted = {false}
+            gameStarted = {clicker}
             gridData = {opponentGridData}
-            sendUpdatedBoard = {()=>{}}
+            sendUpdatedBoard = {sendOpponentUpdatedBoard}
             points={opponentPoints}
             setPoints={setOpponentPoints}
             frozen={opponentFrozen}
             shield={opponentShield}
             smokescreen={opponentSmokescreen}
+            clicker={opponentClicker}
           />
         </div>
       </main>

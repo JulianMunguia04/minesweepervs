@@ -265,7 +265,22 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, freezeOpponent, shield, activateShield, smokescreenOpponent, smokescreen}) => {
+const Board = memo((
+  { gameStarted: initialGameStarted, 
+    gridData, 
+    sendUpdatedBoard, 
+    points, 
+    setPoints, 
+    frozen, 
+    freezeOpponent, 
+    shield, 
+    activateShield, 
+    smokescreenOpponent, 
+    smokescreen,
+    clicker,
+    activateClicker,
+    lastUpdateFromClickerRef
+  }) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -326,7 +341,7 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
           activateShield()
         break;
       case 'clicker':
-        alert('Click the opponents tile once');
+        activateClicker()
         // You can implement the actual effect here
         break;
       default:
@@ -374,6 +389,10 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
   }, []);
 
   useEffect(() => {
+    if (lastUpdateFromClickerRef.current) {
+      lastUpdateFromClickerRef.current = false;
+      return;
+    }
     if (grid && points !== null) {
       sendUpdatedBoard(grid, points)
       console.log("Sent board and points to the socket:",  grid, points );
@@ -386,6 +405,9 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
     <div>  
       <div>Bombs Left: {bombsLeftCount}</div>
       <div>Points: {points}</div>
+      {clicker && (
+        <div>Clicker</div>
+      )}
       {shield && (
         <div>Shield</div>
       )};

@@ -262,7 +262,17 @@ const checkWin = (grid) => {
 //   setGrid(tempGrid);
 // }
 
-const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard, points, setPoints, frozen, shield, smokescreen}) => {
+const Board = memo((
+  {gameStarted: initialGameStarted, 
+    gridData, 
+    sendUpdatedBoard, 
+    points, 
+    setPoints, 
+    frozen, 
+    shield, 
+    smokescreen,
+    clicker
+  }) => {
   const [gameStarted, setGameStarted] = useState(initialGameStarted);
   const [grid, setGrid] = useState(null);
   const [activePowerUps, setActivePowerUps] = useState([]);
@@ -374,10 +384,9 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
 
   useEffect(() => {
     if (grid && points !== null) {
-      sendUpdatedBoard(grid, points)
-      console.log("Sent board and points to the socket:",  grid, points );
+      sendUpdatedBoard(grid, points, true)
     }
-  }, [grid]);
+  }, [grid, points]);
 
   if (!grid) return <div>Loading grid...</div>;
 
@@ -385,6 +394,9 @@ const Board = memo(({gameStarted: initialGameStarted, gridData, sendUpdatedBoard
     <div>  
       <div>Bombs Left: {bombsLeftCount}</div>
       <div>Points: {points}</div>
+      {clicker && (
+        <div>Clicker</div>
+      )}
       {shield && (
         <div>Shield</div>
       )};
