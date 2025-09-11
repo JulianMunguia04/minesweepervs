@@ -47,6 +47,48 @@ const Game = () => {
   const clickerRef = useRef(clicker)
   const lastUpdateFromClickerRef = useRef(false);
 
+  const [secondsTimer, setSecondsTimer] = useState(590);
+  const [isTimerActive, setTimerIsActive] = useState(false);
+
+  useEffect(() => {
+    let timer;
+
+    if (isTimerActive && secondsTimer > 0) {
+      timer = setInterval(() => {
+        setSecondsTimer(prev => prev - 1);
+      }, 1000);
+    }
+
+    if (secondsTimer === 0) {
+      setTimerIsActive(false);
+      alert("Timer Up")
+    }
+
+    return () => clearInterval(timer);
+  }, [isTimerActive, secondsTimer]);
+
+  const startTimer = () => {
+    if (secondsTimer > 0) {
+      setTimerIsActive(true);
+    }
+  };
+
+  const resetTimer = () => {
+    setTimerIsActive(false);
+    setSecondsTimer(10);
+  };
+
+  function secondsToDigits(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    // Format into M:SS (minutes, two-digit seconds)
+    const timeStr = `${minutes}${seconds.toString().padStart(2, "0")}`;
+
+    // Return as array of single digits
+    return timeStr.split("").map(Number);
+  }
+
   useEffect(() => {
     shieldRef.current = shield;
   }, [shield]);
@@ -301,6 +343,8 @@ const Game = () => {
     };
   }, []);
 
+  const digits = secondsToDigits(secondsTimer);
+
   return(
     <>
       <Sidebar 
@@ -322,6 +366,13 @@ const Game = () => {
             width: "70vw",
           }}
         >
+          <div style={{ display: "flex" }}>
+            <img src={`/clock/clock-${digits[0]}.png`} alt={digits[0]} />
+            <img src={`/clock/clock-${digits[1]}.png`} alt={digits[1]} />
+            <img src={`/clock/clock-${digits[2]}.png`} alt={digits[2]} />
+          </div>
+          <button onClick={startTimer} disabled={isTimerActive}>Start</button>
+          <div style={{width:"10%"}}></div>
           <Board
             gameStarted = {gameStarted}
             gridData = {gridData}
