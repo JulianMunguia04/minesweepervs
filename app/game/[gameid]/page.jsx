@@ -147,6 +147,7 @@ const Game = () => {
   const sendOpponentUpdatedBoard = useCallback(
     debounce((grid, points) => {
       socket.emit("opponent-update-board", grid, points, gameid, playerNumber);
+      setClicker(false)
     }, 10),
     [gameid, playerNumber]
   ); 
@@ -306,7 +307,21 @@ const Game = () => {
         userData={userData}
       />
       <main style={{marginLeft:'calc(13vw + 16px)', padding:'0.5rem'}}>
-        <div className="d-flex" style={{ gap: "5%" }}>
+        <div 
+          className="convex-minesweeper-no-hover"
+          style={{
+            margin: 0,
+            marginBottom: '0.5rem',
+            cursor:'pointer',
+            display:'flex',
+            alignItems:'center',
+            padding:'1.5%',
+            width: 'fit-content',
+            display:'flex',
+            justifyContent:"center",
+            width: "70vw",
+          }}
+        >
           <Board
             gameStarted = {gameStarted}
             gridData = {gridData}
@@ -323,6 +338,7 @@ const Game = () => {
             activateClicker={activateClicker}
             lastUpdateFromClickerRef={lastUpdateFromClickerRef}
           />
+          <div style={{width:"10%"}}></div>
           <OpponentBoard
             gameStarted = {clicker}
             gridData = {opponentGridData}

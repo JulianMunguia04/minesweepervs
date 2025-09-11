@@ -3,7 +3,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 import Sidebar from "../../components/sidebar"
-import Board from "../../components/board"
+import Board from "../../components/singlePlayerBoard"
 import PlayMenu from "../../components/playMenu"
 import Ads from "../../components/adexample"
 import socket from '../socket.js';
@@ -95,7 +95,7 @@ const Play = () => {
           style={{ gap: "5%", height: "100vh", marginRight: "36vw"}}
         >
           <Board
-            gameStarted = {false}
+            gameStarted = {true}
             gridData = {null}
             sendUpdatedBoard = {console.log}
           />

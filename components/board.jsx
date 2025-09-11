@@ -26,6 +26,11 @@ class Tile {
     );
 
     const clickedTile = tempGrid[this.row][this.col];
+
+    if (!clickedTile.isCovered && !clickedTile.isPowerUp) {
+      return;
+    }
+
     if (!clickedTile.isFlagged){
       if (clickedTile.isPowerUp) {
         if (clickedTile.isCovered){
@@ -65,7 +70,6 @@ class Tile {
       }
 
       if (checkWin(tempGrid)) {
-        alert("🎉 You won!");
         currentPoints += 1500;
         setPoints(currentPoints)
         newGame(setGrid);
@@ -410,21 +414,30 @@ const Board = memo((
       )}
       {shield && (
         <div>Shield</div>
-      )};
-      <div style={{ position: 'relative', display: 'inline-block' }}>
+      )}
+      <div style={{ 
+        position: 'relative', 
+        display: 'inline-block', 
+        width: `${COLUMNS * 40}px`,
+        height: `${ROWS * 40}px`, 
+        border: '4px solid #7c7c7c',
+        boxSizing: 'content-box'
+      }}
+      >
         {frozen && (
           <div
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
-              right: 0,
-              bottom: 0,
+              width: '100%',
+              height: '100%',
               backgroundImage: 'url("/game_images/frozen.png")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              opacity: 0.5, // controls transparency
-              zIndex: 2, // sits above the grid
+              opacity: 0.5,
+              zIndex: 2,
+              pointerEvents: 'none',
             }}
           ></div>
         )}
@@ -434,6 +447,8 @@ const Board = memo((
             gridTemplateColumns: `repeat(${COLUMNS}, 40px)`,
             gridTemplateRows: `repeat(${ROWS}, 40px)`,
             gap: '0px',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           {grid.flat().map((tile, idx) => (
