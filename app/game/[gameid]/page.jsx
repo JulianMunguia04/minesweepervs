@@ -47,7 +47,7 @@ const Game = () => {
   const clickerRef = useRef(clicker)
   const lastUpdateFromClickerRef = useRef(false);
 
-  const [secondsTimer, setSecondsTimer] = useState(590);
+  const [secondsTimer, setSecondsTimer] = useState(20);
   const [isTimerActive, setTimerIsActive] = useState(false);
 
   useEffect(() => {
@@ -61,13 +61,15 @@ const Game = () => {
 
     if (secondsTimer === 0) {
       setTimerIsActive(false);
-      alert("Timer Up")
+      setGameStarted(false)
+      endGame()
     }
 
     return () => clearInterval(timer);
   }, [isTimerActive, secondsTimer]);
 
-  const startTimer = () => {
+  const startTimer = (seconds) => {
+    setSecondsTimer(seconds)
     if (secondsTimer > 0) {
       setTimerIsActive(true);
     }
@@ -77,6 +79,10 @@ const Game = () => {
     setTimerIsActive(false);
     setSecondsTimer(10);
   };
+
+  const endGame = () =>{
+    socket.emit("end-game", points, gameid, playerNumber)
+  }
 
   function secondsToDigits(totalSeconds) {
     const minutes = Math.floor(totalSeconds / 60);
@@ -128,7 +134,7 @@ const Game = () => {
   }, []);
 
   useEffect(() => {
-    socket.on("game-started", (game, role)=>{
+    socket.on("game-started", (game, role, seconds)=>{
       if (role === "player1"){
         setElo(game.player1.elo)
         console.log("Elo: ", game.player1.elo)
@@ -143,7 +149,7 @@ const Game = () => {
 
         //Start Game
         setGameStarted(true)
-        console.log(gameStarted)
+        startTimer(seconds)
       }else if (role === "player2"){
         setElo(game.player2.elo)
         console.log("Elo: ", game.player2.elo)
@@ -153,11 +159,11 @@ const Game = () => {
         setOpponentProfilePicture(game.player1.profilePicture)
 
         //Set Grid (empty if no grid yet
-        setGridData(game.player1_board)
+        setGridData(game.player2_board)
         setOpponentGridData(game.player2_board)
 
         setGameStarted(true)
-        console.log(gameStarted)
+        startTimer(seconds)
       }
     })
 
@@ -345,6 +351,24 @@ const Game = () => {
 
   const digits = secondsToDigits(secondsTimer);
 
+  useEffect(() => {
+    socket.on("game-ended", (gameId, player1, player2, winner)=>{
+      console.log(gameId, player1, player2, winner)
+      if (winner === 'player1'){
+        winner = player1
+      }
+      else if(winner ==='player2'){
+        winner = player2
+      }
+
+      alert(`winner is ${winner.username}`)
+    })
+
+    return () => {
+      socket.off("game-ended");
+    };
+  }, []);
+
   return(
     <>
       <Sidebar 
@@ -362,45 +386,62 @@ const Game = () => {
             padding:'1.5%',
             width: 'fit-content',
             display:'flex',
+            flexDirection:'column',
+            justifyContent:"center",
+            width: "70vw",
+            cursor:'default'
+          }}
+        >
+          <div style={{backgroundColor:"black", padding: "10px"}}>
+            <div style={{ display: "flex" }}>
+              <img src={`/clock/clock-${digits[0]}.png`} alt={digits[0]} style={{marginRight:'5px'}}/>
+              <img src={`/clock/clock-${digits[1]}.png`} alt={digits[1]} />
+              <img src={`/clock/clock-${digits[2]}.png`} alt={digits[2]} />
+            </div>
+          </div>
+          <div
+            style={{
+            margin: 0,
+            marginBottom: '0.5rem',
+            cursor:'pointer',
+            display:'flex',
+            alignItems:'center',
+            padding:'1.5%',
+            width: 'fit-content',
+            display:'flex',
             justifyContent:"center",
             width: "70vw",
           }}
-        >
-          <div style={{ display: "flex" }}>
-            <img src={`/clock/clock-${digits[0]}.png`} alt={digits[0]} />
-            <img src={`/clock/clock-${digits[1]}.png`} alt={digits[1]} />
-            <img src={`/clock/clock-${digits[2]}.png`} alt={digits[2]} />
+          >
+            <Board
+              gameStarted = {gameStarted}
+              gridData = {gridData}
+              sendUpdatedBoard = {sendUpdatedBoard}
+              points={points}
+              setPoints={setPoints}
+              frozen={frozen}
+              freezeOpponent={freezeOpponent}
+              shield={shield}
+              activateShield={activateShield}
+              smokescreenOpponent={smokescreenOpponent}
+              smokescreen={smokescreen}
+              clicker={clicker}
+              activateClicker={activateClicker}
+              lastUpdateFromClickerRef={lastUpdateFromClickerRef}
+            />
+            <div style={{width:"10%"}}></div>
+            <OpponentBoard
+              gameStarted = {clicker}
+              gridData = {opponentGridData}
+              sendUpdatedBoard = {sendOpponentUpdatedBoard}
+              points={opponentPoints}
+              setPoints={setOpponentPoints}
+              frozen={opponentFrozen}
+              shield={opponentShield}
+              smokescreen={opponentSmokescreen}
+              clicker={opponentClicker}
+            />
           </div>
-          <button onClick={startTimer} disabled={isTimerActive}>Start</button>
-          <div style={{width:"10%"}}></div>
-          <Board
-            gameStarted = {gameStarted}
-            gridData = {gridData}
-            sendUpdatedBoard = {sendUpdatedBoard}
-            points={points}
-            setPoints={setPoints}
-            frozen={frozen}
-            freezeOpponent={freezeOpponent}
-            shield={shield}
-            activateShield={activateShield}
-            smokescreenOpponent={smokescreenOpponent}
-            smokescreen={smokescreen}
-            clicker={clicker}
-            activateClicker={activateClicker}
-            lastUpdateFromClickerRef={lastUpdateFromClickerRef}
-          />
-          <div style={{width:"10%"}}></div>
-          <OpponentBoard
-            gameStarted = {clicker}
-            gridData = {opponentGridData}
-            sendUpdatedBoard = {sendOpponentUpdatedBoard}
-            points={opponentPoints}
-            setPoints={setOpponentPoints}
-            frozen={opponentFrozen}
-            shield={opponentShield}
-            smokescreen={opponentSmokescreen}
-            clicker={opponentClicker}
-          />
         </div>
       </main>
 

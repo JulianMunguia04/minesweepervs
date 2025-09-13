@@ -67,6 +67,9 @@ io.on('connection', async (socket) => {
           player2_clicker: false,
           status: "waiting",
           gameId: gameId,
+          player1_finished: false,
+          player2_finished: false,
+          game_finished: false
         })
       );
 
@@ -123,6 +126,9 @@ io.on('connection', async (socket) => {
           player2_clicker: false,
           status: "waiting",
           gameId: gameId,
+          player1_finished: false,
+          player2_finished: false,
+          game_finished: false
         })
       );
 
@@ -155,6 +161,7 @@ io.on('connection', async (socket) => {
 
   //Game Joining
   socket.on('join-game', async (playerData, gameId) => {
+    const gameLengthSeconds = 120
     let game = JSON.parse(await redis.get(`match:${gameId}`));
     console.log(game)
     if (!game) return socket.emit("error", "Game not found");
@@ -186,7 +193,7 @@ io.on('connection', async (socket) => {
       console.log("both ready")
       await redis.set(`match:${gameId}`, JSON.stringify(game));
 
-      io.to(gameId).emit("game-started", game, socket.role);
+      io.to(gameId).emit("game-started", game, socket.role, gameLengthSeconds);
     }
   });
 
@@ -323,6 +330,53 @@ io.on('connection', async (socket) => {
     }
   })
 
+  socket.on("end-game", async (points, gameId, playerNumber) => {
+    let game = JSON.parse(await redis.get(`match:${gameId}`));
+    if (!game) return socket.emit("error", "Game not found");
+
+    // Prevent double-finalization
+    if (game.game_finished) return;  
+
+    if (playerNumber === "player1") {
+      game.player1_points = points;
+      game.player1_finished = true;
+    } else if (playerNumber === "player2") {
+      game.player2_points = points;
+      game.player2_finished = true;
+    }
+
+    await redis.set(`match:${gameId}`, JSON.stringify(game));
+
+    // Check if both are done
+    if (game.player1_finished && game.player2_finished && !game.game_finished) {
+      game.game_finished = true; // lock it immediately
+
+      // Determine winner
+      let winner = null;
+      if (game.player1_points > game.player2_points) winner = "player1";
+      else if (game.player2_points > game.player1_points) winner = "player2";
+      else winner = "draw";
+
+      await redis.set(`match:${gameId}`, JSON.stringify(game));
+
+      io.to(gameId).emit("game-ended", 
+        gameId,
+        {
+          username: game.player1.username,
+          points: game.player1_points,
+          board: game.player1_board
+        },
+        {
+          username: game.player2.username,
+          points: game.player2_points,
+          board: game.player2_board
+        },
+        winner
+      );
+
+      console.log(`🏁 Game ${gameId} finished! Winner: ${winner}`);
+    }
+  });
 
   socket.on('disconnect', async () => {
     console.log('❌ Socket disconnected:', socket.id);
