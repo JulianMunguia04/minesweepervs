@@ -14,10 +14,14 @@ const Game = () => {
   const [userData, setUserData] = useState(null);
   const [guestData, setGuestData] = useState(null);
   const [playerNumber, setPlayerNumber] = useState(null);
+  const playerNumberRef = useRef(null);
   const [gameStarted, setGameStarted] = useState(false)
 
   const [gridData, setGridData] = useState(null);
   const [opponentGridData, setOpponentGridData] = useState(null);
+
+  const [profile, setProfile] = useState(null);
+  const [opponentProfile, setOpponentProfile] = useState(null);
 
   const [elo, setElo] = useState(1000)
   const [opponentElo, setOpponentElo] = useState(1000)
@@ -49,6 +53,12 @@ const Game = () => {
 
   const [secondsTimer, setSecondsTimer] = useState(20);
   const [isTimerActive, setTimerIsActive] = useState(false);
+
+  useEffect(() => {
+    if (playerNumber) {
+      playerNumberRef.current = playerNumber;
+    }
+  }, [playerNumber]);
 
   useEffect(() => {
     let timer;
@@ -135,13 +145,19 @@ const Game = () => {
 
   useEffect(() => {
     socket.on("game-started", (game, role, seconds)=>{
-      if (role === "player1"){
+      console.log("role ", playerNumber)
+      console.log("player 1 ", game.player1)
+      console.log("player 2 ", game.player2)
+      if (playerNumberRef.current === "player1"){
+        setProfile(game.player1)
+        console.log("profile pic ", game.player1)
+        setOpponentProfile(game.player2)
         setElo(game.player1.elo)
         console.log("Elo: ", game.player1.elo)
         setOpponentElo(game.player2.elo)
         console.log("opponent elo", game.player2.elo)
-        setProfilePicture(game.player1.profilePicture)
-        setOpponentProfilePicture(game.player2.profilePicture)
+        setProfilePicture(game.player1.profile_picture)
+        setOpponentProfilePicture(game.player2.profile_picture)
 
         //Set Grid (empty if no grid yet
         setGridData(game.player1_board)
@@ -150,17 +166,19 @@ const Game = () => {
         //Start Game
         setGameStarted(true)
         startTimer(seconds)
-      }else if (role === "player2"){
+      }else if (playerNumberRef.current === "player2"){
+        setProfile(game.player2)
+        setOpponentProfile(game.player1)
         setElo(game.player2.elo)
         console.log("Elo: ", game.player2.elo)
         setOpponentElo(game.player1.elo)
         console.log("opponent elo", game.player1.elo)
-        setProfilePicture(game.player2.profilePicture)
-        setOpponentProfilePicture(game.player1.profilePicture)
+        setProfilePicture(game.player2.profile_picture)
+        setOpponentProfilePicture(game.player1.profile_picture)
 
         //Set Grid (empty if no grid yet
         setGridData(game.player2_board)
-        setOpponentGridData(game.player2_board)
+        setOpponentGridData(game.player1_board)
 
         setGameStarted(true)
         startTimer(seconds)
@@ -392,12 +410,89 @@ const Game = () => {
             cursor:'default'
           }}
         >
-          <div style={{backgroundColor:"black", padding: "10px"}}>
-            <div style={{ display: "flex" }}>
-              <img src={`/clock/clock-${digits[0]}.png`} alt={digits[0]} style={{marginRight:'5px'}}/>
-              <img src={`/clock/clock-${digits[1]}.png`} alt={digits[1]} />
-              <img src={`/clock/clock-${digits[2]}.png`} alt={digits[2]} />
+          <div style={{
+            display:'flex',
+            height: '9vh',
+            width: '100%',
+            justifyContent: 'space-between'
+          }}>
+            {!profile ? (
+              <div
+                className='concave-minesweeper-no-hover'
+                style={{
+                  height: '100%',
+                  width: '30%',
+                  display:'flex',
+                  flexDirection:"column"
+                }}
+              >
+                Loading...
+              </div>
+            ):(
+              <div
+                className='concave-minesweeper-no-hover'
+                style={{
+                  height: '100%',
+                  width: '30%',
+                  display:'flex',
+                  flexDirection:"row",
+                  paddingLeft: '2%',
+                  alignItems:'center'
+                }}
+              >
+                <img src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                <div style={{marginLeft: '3%', fontWeight:'bold'}}>{profile.username}</div>
+                <div style={{marginLeft: '1.5%', color: 'gray'}}>({profile.elo})</div> 
+              </div>
+            )}
+            <div style={{backgroundColor:"black", height: '100%', display:'flex', padding: '0.5%', width: "13%"}}>
+              <div style={{ display: "flex", width: '100%' }}>
+                <img src={`/clock/clock-${digits[0]}.png`} alt={digits[0]} style={{marginRight:'5px',width: '33.3%'}}/>
+                <img src={`/clock/clock-${digits[1]}.png`} alt={digits[1]} style={{width: '33.3%'}}/>
+                <img src={`/clock/clock-${digits[2]}.png`} alt={digits[2]} style={{width: '33.3%'}}/>
+              </div>
             </div>
+            {!opponentProfile ? (
+              <div
+                className='concave-minesweeper-no-hover'
+                style={{
+                  height: '100%',
+                  width: '30%',
+                  display:'flex',
+                  flexDirection:"column"
+                }}
+              >
+                Loading...
+              </div>
+            ):(
+              <div
+                className='concave-minesweeper-no-hover'
+                style={{
+                  height: '100%',
+                  width: '30%',
+                  display:'flex',
+                  flexDirection:"row",
+                  paddingLeft: '2%',
+                  alignItems:'center'
+                }}
+              >
+                <img src={opponentProfile.profilePicture ? `${opponentProfile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                <div style={{marginLeft: '3%', fontWeight:'bold'}}>{opponentProfile.username}</div>
+                <div style={{marginLeft: '1.5%', color: 'gray'}}>({opponentProfile.elo})</div> 
+              </div>
+            )}
           </div>
           <div
             style={{

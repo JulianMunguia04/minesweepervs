@@ -125,7 +125,8 @@ const Sidebar = ({
         flexDirection:'column',
         justifyContent:'space-between',
         alignItems:'center',
-        padding: '10px'
+        padding: '10px',
+        zIndex: 1000
       }}
     >
       {/* Top buttons */}

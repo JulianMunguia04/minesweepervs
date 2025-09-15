@@ -23,6 +23,7 @@ io.on('connection', async (socket) => {
 
   socket.on('find-online-game', async (userData) =>{
     console.log(`🎮 ${userData.username} is searching for a game`);
+    console.log(`user data searching for game: `, userData)
 
     // Add this user to the matchmaking queue
     const player = {
@@ -85,6 +86,7 @@ io.on('connection', async (socket) => {
 
   socket.on('find-online-game-guest', async (guestData) => {
     console.log(`🎮 Guest ${guestData.username} is searching for a game with ELO ${guestData.elo}`);
+    console.log(`guest data seacrhing`, guestData)
 
     // Add this guest to the matchmaking queue
     const player = {
@@ -92,6 +94,7 @@ io.on('connection', async (socket) => {
       username: guestData.username,
       elo: guestData.elo,
       socketId: socket.id,
+      profilePicture: guestData.profile_picture
     };
     await redis.rPush("matchmaking_queue", JSON.stringify(player));
 

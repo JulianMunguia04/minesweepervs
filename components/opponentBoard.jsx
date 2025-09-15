@@ -396,22 +396,15 @@ const Board = memo((
   if (!grid) return <div>Loading grid...</div>;
 
   return (
-    <div>  
-      <div>Bombs Left: {bombsLeftCount}</div>
-      <div>Points: {points}</div>
-      {clicker && (
-        <div>Clicker</div>
-      )}
-      {shield && (
-        <div>Shield</div>
-      )}
+    <div> 
       <div style={{ 
         position: 'relative', 
         display: 'inline-block', 
         width: `${COLUMNS * 40}px`,
         height: `${ROWS * 40}px`, 
         border: '4px solid #7c7c7c',
-        boxSizing: 'content-box'
+        boxSizing: 'content-box',
+        zIndex: 1
       }}
       >
         {frozen && (
@@ -552,6 +545,14 @@ const Board = memo((
             </div>
           ))}
         </div>
+        <div>Bombs Left: {bombsLeftCount}</div>
+        <div>Points: {points}</div>
+        {clicker && (
+          <div>Clicker</div>
+        )}
+        {shield && (
+          <div>Shield</div>
+        )}
       </div>
     </div>
   )
