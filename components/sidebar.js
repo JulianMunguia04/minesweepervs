@@ -636,7 +636,7 @@ const Sidebar = ({
             }}
           >
             <img 
-              src={userData?.profile_picture || "My-Account.png"}
+              src={userData?.profile_picture? `${userData?.profile_picture}` : "My-Account.png"}
               style={{
                 width: '18%',
                 borderRadius: '100%'

@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import pgClient from '../database/postgresdb.js';
+import {createGameSQL, gameEndedSQL} from '../database/postgresdb.js';
 import redis from '../database/redis.js'
 import { v4 as uuidv4 } from "uuid";
 
@@ -27,7 +27,7 @@ io.on('connection', async (socket) => {
 
     // Add this user to the matchmaking queue
     const player = {
-      id: userData.username,
+      id: userData.id,
       username: userData.username,
       elo: userData.elo,
       socketId: socket.id,
@@ -78,6 +78,10 @@ io.on('connection', async (socket) => {
 
       console.log(`✅ Game ${gameId} created: ${p1.guestId || p1.username} vs ${p2.guestId || p2.username}`);
 
+      //save game to PostgreSQL
+      await createGameSQL(game)
+
+
       // Send both players to the game
       io.to(p1.socketId).emit("game-found", gameId, p2, game);
       io.to(p2.socketId).emit("game-found", gameId, p1, game);
@@ -90,7 +94,7 @@ io.on('connection', async (socket) => {
 
     // Add this guest to the matchmaking queue
     const player = {
-      id: guestData.username,
+      id: guestData.id,
       username: guestData.username,
       elo: guestData.elo,
       socketId: socket.id,
@@ -139,6 +143,9 @@ io.on('connection', async (socket) => {
 
       console.log(`✅ Game ${gameId} created: ${p1.username || p1.username} vs ${p2.username || p2.username}`);
 
+      //save game to PostgreSQL
+      await createGameSQL(game)
+
       // Send both players to the game
       io.to(p1.socketId).emit("game-found", gameId, p2, game);
       io.to(p2.socketId).emit("game-found", gameId, p1, game);
@@ -164,7 +171,7 @@ io.on('connection', async (socket) => {
 
   //Game Joining
   socket.on('join-game', async (playerData, gameId) => {
-    const gameLengthSeconds = 120
+    const gameLengthSeconds = 2
     let game = JSON.parse(await redis.get(`match:${gameId}`));
     console.log(game)
     if (!game) return socket.emit("error", "Game not found");
@@ -364,20 +371,33 @@ io.on('connection', async (socket) => {
 
       await redis.set(`match:${gameId}`, JSON.stringify(game));
 
+      game = JSON.parse(await redis.get(`match:${gameId}`))
+
+      //Update SQL after game
+      const result = await gameEndedSQL(gameId, JSON.stringify(game))
+      console.log("result ", result)
+
       io.to(gameId).emit("game-ended", 
         gameId,
         {
           username: game.player1.username,
           points: game.player1_points,
-          board: game.player1_board
+          board: game.player1_board,
+          startingElo: result.player1_starting_elo,
+          endingElo: result.player1_ending_elo
         },
         {
           username: game.player2.username,
           points: game.player2_points,
-          board: game.player2_board
+          board: game.player2_board,
+          startingElo: result.player2_starting_elo,
+          endingElo: result.player2_ending_elo
         },
+        result,
         winner
       );
+
+      await redis.del(`match:${gameId}`);
 
       console.log(`🏁 Game ${gameId} finished! Winner: ${winner}`);
     }

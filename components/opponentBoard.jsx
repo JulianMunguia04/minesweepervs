@@ -545,14 +545,80 @@ const Board = memo((
             </div>
           ))}
         </div>
-        <div>Bombs Left: {bombsLeftCount}</div>
-        <div>Points: {points}</div>
-        {clicker && (
-          <div>Clicker</div>
-        )}
-        {shield && (
-          <div>Shield</div>
-        )}
+        <div style={{display:'flex', justifyContent:"space-between", alignItems: 'center', height: '5vh'}}>
+          <div>Bombs Left: {bombsLeftCount}</div>
+          <div style={{width: '23%'}}>Points: {points}</div>
+        </div>
+        <div 
+          className="concave-minesweeper-no-hover"
+          style={{
+            margin: 0,
+            cursor: 'pointer',
+            width: '100%',
+            height: '10vh',
+            position: 'relative',
+          }}
+        >
+          {clicker && (
+            <div style={{
+              width: "10%",
+              backgroundImage: "url('/powerup-icons/clicker.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: 'absolute',
+              top: '50%',
+              left: '10%',
+              transform: 'translateY(-50%)'
+            }}>
+              <div style={{ paddingTop: "100%" }}></div>
+            </div>
+          )}
+
+          {shield && (
+            <div style={{
+              width: "10%",
+              backgroundImage: "url('/powerup-icons/shield.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: 'absolute',
+              top: '50%',
+              left: '30%',
+              transform: 'translateY(-50%)'
+            }}>
+              <div style={{ paddingTop: "100%" }}></div>
+            </div>
+          )}
+
+          {smokescreen && (
+            <div style={{
+              width: "10%",
+              backgroundImage: "url('/powerup-icons/smokescreen.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translateY(-50%)'
+            }}>
+              <div style={{ paddingTop: "100%" }}></div>
+            </div>
+          )}
+
+          {frozen && (
+            <div style={{
+              width: "10%",
+              backgroundImage: "url('/powerup-icons/frozen.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: 'absolute',
+              top: '50%',
+              left: '70%',
+              transform: 'translateY(-50%)'
+            }}>
+              <div style={{ paddingTop: "100%" }}></div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

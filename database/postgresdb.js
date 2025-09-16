@@ -39,7 +39,22 @@ export const createTables = async () => {
         avg_points_per_second FLOAT DEFAULT 0,
         verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );`
+      );`,
+      `CREATE TABLE IF NOT EXISTS games (
+        gameid UUID PRIMARY KEY,
+        player1 UUID NOT NULL,
+        player2 UUID NOT NULL,
+        p1points INT DEFAULT 0,
+        p2points INT DEFAULT 0,
+        p1_starting_elo INT NOT NULL,
+        p1_ending_elo INT NULL,
+        p2_starting_elo INT NOT NULL,
+        p2_ending_elo INT NULL,
+        gamestate VARCHAR(10) DEFAULT 'playing', -- "playing" or "finished"
+        winner UUID NULL, -- null, user id, or "tie" stored as string if needed
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );`
     ];
     for (const query of tableQueries) {
       await client.query(query);
@@ -170,5 +185,142 @@ export const googleSignup = async (googleUser) => {
     return { success: false, message: 'Database error' };
   }
 };
+
+export const createGameSQL = async (gameString) => {
+  try {
+    const game = JSON.parse(gameString);
+    console.log("game check: ", game)
+
+    const {
+      gameId,
+      player1,
+      player2,
+      player1_points,
+      player2_points,
+    } = game;
+
+    const query = `
+      INSERT INTO games (
+        gameid,
+        player1,
+        player2,
+        p1points,
+        p2points,
+        p1_starting_elo,
+        p1_ending_elo,
+        p2_starting_elo,
+        p2_ending_elo,
+        gamestate,
+        winner
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      RETURNING *;
+    `;
+
+    const values = [
+      gameId,
+      player1.id,
+      player2.id,
+      player1_points,
+      player2_points,
+      player1.elo,   // starting ELO
+      null,          // ending ELO initially null
+      player2.elo,   // starting ELO
+      null,          // ending ELO initially null
+      'playing',     // initial gamestate
+      null           // winner initially null
+    ];
+
+  console.log("values check ", values)
+
+    const res = await client.query(query, values);
+    console.log(`✅ Game saved in PostgreSQL: ${res.rows[0].gameid}`);
+  } catch (err) {
+    console.error('❌ Error creating game in PostgreSQL:', err.stack);
+  }
+};
+
+export async function gameEndedSQL(gameId, gameData) {
+  try {
+    console.log("pg data", gameData);
+    const game = JSON.parse(gameData);
+
+    // Determine winner
+    let winner =
+      game.player1_points > game.player2_points
+        ? game.player1.id
+        : game.player2_points > game.player1_points
+        ? game.player2.id
+        : null; // draw = null
+
+    // Determine scores for ELO calculation
+    let p1_score, p2_score;
+    if (winner === game.player1.id) {
+      p1_score = 1;
+      p2_score = 0;
+    } else if (winner === game.player2.id) {
+      p1_score = 0;
+      p2_score = 1;
+    } else {
+      p1_score = 0.5;
+      p2_score = 0.5;
+    }
+
+    // Calculate new ELOs
+    const p1_new_elo = calculateElo(game.player1.elo, game.player2.elo, p1_score);
+    const p2_new_elo = calculateElo(game.player2.elo, game.player1.elo, p2_score);
+
+    // Update game in DB
+    const query = `
+      UPDATE games
+      SET p1points = $1,
+          p2points = $2,
+          winner = $3,
+          p1_ending_elo = $4,
+          p2_ending_elo = $5,
+          gamestate = 'finished',
+          updated_at = NOW()
+      WHERE gameid = $6
+      RETURNING *;
+    `;
+    const values = [
+      game.player1_points,
+      game.player2_points,
+      winner,
+      p1_new_elo,
+      p2_new_elo,
+      gameId
+    ];
+
+    const res = await client.query(query, values);
+    console.log(`✅ Game ${gameId} updated in SQL`, res.rows[0]);
+
+    // Update users' ELOs safely
+    await client.query(
+      `UPDATE users SET elo = $1 WHERE id = $2`,
+      [p1_new_elo, game.player1.id]
+    );
+
+    await client.query(
+      `UPDATE users SET elo = $1 WHERE id = $2`,
+      [p2_new_elo, game.player2.id]
+    );
+
+    return res.rows[0];
+
+  } catch (err) {
+    console.error(`❌ Failed to update game ${gameId} in SQL:`, err);
+    throw err;
+  }
+}
+
+export function calculateElo(playerElo, opponentElo, score, k = 32) {
+  // Expected score based on difference in ELO
+  const expectedScore = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
+
+  // New rating
+  const newElo = playerElo + k * (score - expectedScore);
+
+  return Math.round(newElo);
+}
 
 export default client;

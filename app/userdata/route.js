@@ -23,7 +23,7 @@ export async function GET(req) {
 
     // Fetch user from PostgreSQL
     const query = `
-      SELECT username, email, first_name, last_name, date_of_birth, profile_picture,
+      SELECT id, username, email, first_name, last_name, date_of_birth, profile_picture,
              games_played, games_won, elo, avg_points_per_second, created_at
       FROM users
       WHERE username = $1

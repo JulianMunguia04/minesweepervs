@@ -7,6 +7,7 @@ import Board from "../../../components/board"
 import { useParams } from "next/navigation";
 import socket from '../../socket';
 import OpponentBoard from "../../../components/opponentBoard"
+import Ads from "../../../components/adexample"
 
 const Game = () => {
   const params = useParams();
@@ -371,17 +372,24 @@ const Game = () => {
   const digits = secondsToDigits(secondsTimer);
 
   useEffect(() => {
-    socket.on("game-ended", (gameId, player1, player2, winner)=>{
-      console.log(gameId, player1, player2, winner)
-      if (winner === 'player1'){
-        winner = player1
-      }
-      else if(winner ==='player2'){
-        winner = player2
+    socket.on("game-ended", (gameId, player1, player2, result, winner) => {
+      console.log(gameId, player1, player2, winner);
+      console.log("result ", result)
+      let winnerPlayer = null;
+      console.log("player1 " , player1)
+      if (winner === 'player1') {
+        winnerPlayer = player1;
+      } else if (winner === 'player2') {
+        winnerPlayer = player2;
       }
 
-      alert(`winner is ${winner.username}`)
-    })
+      if (winnerPlayer) {
+        alert(`Winner is ${winnerPlayer.username}, player1 start elo: ${result.p1_starting_elo}, 
+              ending elo: ${result.p1_ending_elo}, player2 start elo: ${result.p2_starting_elo}, ending elo: ${result.p2_ending_elo}`);
+      } else {
+        alert(`It's a draw!`);
+      }
+    });
 
     return () => {
       socket.off("game-ended");
@@ -398,6 +406,7 @@ const Game = () => {
           className="convex-minesweeper-no-hover"
           style={{
             margin: 0,
+            marginTop:'2%',
             marginBottom: '0.5rem',
             cursor:'pointer',
             display:'flex',
@@ -406,9 +415,8 @@ const Game = () => {
             width: 'fit-content',
             display:'flex',
             flexDirection:'column',
-            justifyContent:"center",
-            width: "70vw",
-            cursor:'default'
+            cursor:'default',
+            height: '90vh'
           }}
         >
           <div style={{
@@ -448,7 +456,7 @@ const Game = () => {
                     borderRadius: '2vw'
                   }}
                 ></img>
-                <div style={{marginLeft: '3%', fontWeight:'bold'}}>{profile.username}</div>
+                <div style={{marginLeft: '3%', fontWeight:'bold', width:'50%'}}>{profile.username}</div>
                 <div style={{marginLeft: '1.5%', color: 'gray'}}>({profile.elo})</div> 
               </div>
             )}
@@ -490,7 +498,7 @@ const Game = () => {
                     borderRadius: '2vw'
                   }}
                 ></img>
-                <div style={{marginLeft: '3%', fontWeight:'bold'}}>{opponentProfile.username}</div>
+                <div style={{marginLeft: '3%', fontWeight:'bold', width:'50%'}}>{opponentProfile.username}</div>
                 <div style={{marginLeft: '1.5%', color: 'gray'}}>({opponentProfile.elo})</div> 
               </div>
             )}
@@ -527,7 +535,7 @@ const Game = () => {
             />
             <div style={{width:"10%"}}></div>
             <OpponentBoard
-              gameStarted = {clicker}
+              gameStarted = {clicker && !opponentShield}
               gridData = {opponentGridData}
               sendUpdatedBoard = {sendOpponentUpdatedBoard}
               points={opponentPoints}
@@ -540,7 +548,7 @@ const Game = () => {
           </div>
         </div>
       </main>
-
+      <Ads/>
     </>
   )
 }
