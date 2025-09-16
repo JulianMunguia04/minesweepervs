@@ -145,10 +145,11 @@ const Game = () => {
 
   useEffect(() => {
     socket.on("game-started", (game, role, seconds)=>{
-      console.log("role ", playerNumber)
+      console.log("GAME STARTED EVENT RECEIVED:", game);
+      console.log("role ", playerNumberRef.current)
       console.log("player 1 ", game.player1)
       console.log("player 2 ", game.player2)
-      if (playerNumberRef.current === "player1"){
+      if (role == "player1"){
         setProfile(game.player1)
         console.log("profile pic ", game.player1)
         setOpponentProfile(game.player2)
@@ -166,7 +167,7 @@ const Game = () => {
         //Start Game
         setGameStarted(true)
         startTimer(seconds)
-      }else if (playerNumberRef.current === "player2"){
+      }else if (role == "player2"){
         setProfile(game.player2)
         setOpponentProfile(game.player1)
         setElo(game.player2.elo)

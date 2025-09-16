@@ -196,7 +196,9 @@ io.on('connection', async (socket) => {
       console.log("both ready")
       await redis.set(`match:${gameId}`, JSON.stringify(game));
 
-      io.to(gameId).emit("game-started", game, socket.role, gameLengthSeconds);
+      io.to(game.player1.socketId).emit("game-started", game, "player1", gameLengthSeconds);
+      io.to(game.player2.socketId).emit("game-started", game, "player2", gameLengthSeconds);
+      
     }
   });
 
