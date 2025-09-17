@@ -171,7 +171,7 @@ io.on('connection', async (socket) => {
 
   //Game Joining
   socket.on('join-game', async (playerData, gameId) => {
-    const gameLengthSeconds = 2
+    const gameLengthSeconds = 120
     let game = JSON.parse(await redis.get(`match:${gameId}`));
     console.log(game)
     if (!game) return socket.emit("error", "Game not found");

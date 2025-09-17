@@ -52,8 +52,11 @@ const Game = () => {
   const clickerRef = useRef(clicker)
   const lastUpdateFromClickerRef = useRef(false);
 
-  const [secondsTimer, setSecondsTimer] = useState(20);
+  const [secondsTimer, setSecondsTimer] = useState(120);
   const [isTimerActive, setTimerIsActive] = useState(false);
+
+  const [animationIntro, setAnimationIntro] = useState(true);
+  const [animationLength, setAnimationLength] = useState(2);
 
   useEffect(() => {
     if (playerNumber) {
@@ -165,9 +168,12 @@ const Game = () => {
         setGridData(game.player1_board)
         setOpponentGridData(game.player2_board)
 
-        //Start Game
-        setGameStarted(true)
-        startTimer(seconds)
+        setAnimationIntro(true)
+        setTimeout(()=>{
+          //Start Game
+          setGameStarted(true)
+          startTimer(seconds)
+        }, animationLength * 1000)
       }else if (role == "player2"){
         setProfile(game.player2)
         setOpponentProfile(game.player1)
@@ -182,8 +188,12 @@ const Game = () => {
         setGridData(game.player2_board)
         setOpponentGridData(game.player1_board)
 
-        setGameStarted(true)
-        startTimer(seconds)
+        setAnimationIntro(true)
+        setTimeout(()=>{
+          //Start Game
+          setGameStarted(true)
+          startTimer(seconds)
+        }, animationLength * 1000)
       }
     })
 
@@ -397,7 +407,7 @@ const Game = () => {
   }, []);
 
   return(
-    <>
+    <div>
       <Sidebar 
         userData={userData}
       />
@@ -416,9 +426,64 @@ const Game = () => {
             display:'flex',
             flexDirection:'column',
             cursor:'default',
-            height: '90vh'
+            height: '90vh',
+            position:'relative'
           }}
         >
+          {animationIntro && profile && opponentProfile && (
+            <div style={{
+              position: 'absolute',
+              top: '40%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '50vw',
+              height: '20vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              zIndex: 10,
+              display:'flex',
+              gap:'10%',
+              justifyContent:'center',
+              alignItems:'center',
+              animation: `fadeInOut ${animationLength}s ease-in-out forwards`,
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                display:'flex',
+                justifyContent:'center',
+                alignItems:'center'}}
+              >
+                <img 
+                  rel="preload"
+                  src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{profile.username}</div>
+                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({profile.elo})</div>
+              </div>
+              <div style={{color:'white'}}>VS</div>
+              <div style={{
+                display:'flex',
+                justifyContent:'center',
+                alignItems:'center'}}
+              >
+                <img 
+                  rel="preload"
+                  src={opponentProfile.profilePicture ? `${opponentProfile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{opponentProfile.username}</div>
+                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({opponentProfile.elo})</div>
+              </div>
+            </div>
+          )}
           <div style={{
             display:'flex',
             height: '9vh',
@@ -449,7 +514,9 @@ const Game = () => {
                   alignItems:'center'
                 }}
               >
-                <img src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
+                <img 
+                  rel="preload"
+                  src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
                   style={{
                     width: '3.5vw',
                     height: '3.5vw',
@@ -549,7 +616,7 @@ const Game = () => {
         </div>
       </main>
       <Ads/>
-    </>
+    </div>
   )
 }
 
