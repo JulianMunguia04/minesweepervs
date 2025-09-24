@@ -4,13 +4,14 @@ import React from 'react'
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from "../../../components/sidebar"
 import Board from "../../../components/board"
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import socket from '../../socket';
 import OpponentBoard from "../../../components/opponentBoard"
 import Ads from "../../../components/adexample"
 
 const Game = () => {
   const params = useParams();
+  const router = useRouter();
   const { gameid } = params;
   const [userData, setUserData] = useState(null);
   const [guestData, setGuestData] = useState(null);
@@ -60,7 +61,7 @@ const Game = () => {
 
   const [animationOutro, setAnimationOutro] = useState(false);
   const [endGameInformation, setEndGameInformation] = useState(null)
-  const [animationOutroLength, setAnimationOutroLength] = useState(2);
+  const [animationOutroLength, setAnimationOutroLength] = useState(3); // Increased for better visibility
 
   useEffect(() => {
     if (playerNumber) {
@@ -398,10 +399,20 @@ const Game = () => {
       }
 
       if (winnerPlayer) {
-        alert(`Winner is ${winnerPlayer.username}, player1 start elo: ${result.p1_starting_elo}, 
+        setEndGameInformation({
+          winnerPlayer: winnerPlayer,
+          result: result,
+          isDraw: false
+        })
+        console.log(`Winner is ${winnerPlayer.username}, player1 start elo: ${result.p1_starting_elo}, 
               ending elo: ${result.p1_ending_elo}, player2 start elo: ${result.p2_starting_elo}, ending elo: ${result.p2_ending_elo}`);
       } else {
-        alert(`It's a draw!`);
+        setEndGameInformation({
+          winnerPlayer: null,
+          result: result,
+          isDraw: true
+        })
+        console.log(`It's a draw!`);
       }
       setAnimationOutro(true)
     });
@@ -410,6 +421,10 @@ const Game = () => {
       socket.off("game-ended");
     };
   }, []);
+
+  const handlePlayAgain = () => {
+    router.push('/play/');
+  };
 
   return(
     <div>
@@ -490,62 +505,119 @@ const Game = () => {
             </div>
           )}
 
-          {/* Game Ended */}
-          {animationOutro && profile && opponentProfile && endGameInformation &&(
+          {/* Game Ended Animation */}
+          {animationOutro && profile && opponentProfile && endGameInformation && (
             <div style={{
               position: 'absolute',
               top: '40%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '50vw',
-              height: '20vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              width: '60vw',
+              height: '30vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
               zIndex: 10,
               display:'flex',
-              gap:'10%',
+              flexDirection: 'column',
               justifyContent:'center',
               alignItems:'center',
-              animation: `fadeInOut ${animationLength}s ease-in-out forwards`,
-              pointerEvents: 'none'
+              animation: `fadeIn ${animationOutroLength}s ease-in-out forwards`,
+              borderRadius: '15px',
+              border: '3px solid gold',
+              padding: '2rem'
             }}>
-              <div style={{
-                display:'flex',
-                justifyContent:'center',
-                alignItems:'center'}}
+              {endGameInformation.isDraw ? (
+                <>
+                  <div style={{
+                    color: 'white',
+                    fontSize: '3rem',
+                    fontWeight: 'bold',
+                    marginBottom: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    It's a Draw!
+                  </div>
+                  <div style={{
+                    color: 'lightgray',
+                    fontSize: '1.2rem',
+                    marginBottom: '2rem',
+                    textAlign: 'center'
+                  }}>
+                    Both players scored {points} points
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{
+                    color: 'gold',
+                    fontSize: '2.5rem',
+                    fontWeight: 'bold',
+                    marginBottom: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    🏆 Winner! 🏆
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1rem'
+                  }}>
+                    <img 
+                      src={endGameInformation.winnerPlayer.profilePicture ? `${endGameInformation.winnerPlayer.profilePicture}` : "/empty-profile-example.jpg"}
+                      style={{
+                        width: '4vw',
+                        height: '4vw',
+                        borderRadius: '2vw',
+                        marginRight: '1rem'
+                      }}
+                      alt="Winner"
+                    />
+                    <div style={{
+                      color: 'white',
+                      fontSize: '2rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {endGameInformation.winnerPlayer.username}
+                    </div>
+                  </div>
+                  <div style={{
+                    color: 'lightgray',
+                    fontSize: '1.2rem',
+                    marginBottom: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    Final Score: {points} - {opponentPoints}
+                  </div>
+                </>
+              )}
+              
+              <button
+                onClick={handlePlayAgain}
+                style={{
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  fontSize: '1.2rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  marginTop: '1rem',
+                  fontWeight: 'bold',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = '#45a049';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = '#4CAF50';
+                  e.target.style.transform = 'scale(1)';
+                }}
               >
-                <img 
-                  rel="preload"
-                  src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
-                  style={{
-                    width: '3.5vw',
-                    height: '3.5vw',
-                    borderRadius: '2vw'
-                  }}
-                ></img>
-                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{profile.username}</div>
-                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({profile.elo})</div>
-              </div>
-              <div style={{color:'white'}}>VS</div>
-              <div style={{
-                display:'flex',
-                justifyContent:'center',
-                alignItems:'center'}}
-              >
-                <img 
-                  rel="preload"
-                  src={opponentProfile.profilePicture ? `${opponentProfile.profilePicture}` : "/empty-profile-example.jpg"}
-                  style={{
-                    width: '3.5vw',
-                    height: '3.5vw',
-                    borderRadius: '2vw'
-                  }}
-                ></img>
-                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{opponentProfile.username}</div>
-                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({opponentProfile.elo})</div>
-              </div>
+                Play Again
+              </button>
             </div>
           )}
-
           <div style={{
             display:'flex',
             height: '9vh',
