@@ -58,6 +58,10 @@ const Game = () => {
   const [animationIntro, setAnimationIntro] = useState(true);
   const [animationLength, setAnimationLength] = useState(2);
 
+  const [animationOutro, setAnimationOutro] = useState(false);
+  const [endGameInformation, setEndGameInformation] = useState(null)
+  const [animationOutroLength, setAnimationOutroLength] = useState(2);
+
   useEffect(() => {
     if (playerNumber) {
       playerNumberRef.current = playerNumber;
@@ -399,6 +403,7 @@ const Game = () => {
       } else {
         alert(`It's a draw!`);
       }
+      setAnimationOutro(true)
     });
 
     return () => {
@@ -484,6 +489,63 @@ const Game = () => {
               </div>
             </div>
           )}
+
+          {/* Game Ended */}
+          {animationOutro && profile && opponentProfile && endGameInformation &&(
+            <div style={{
+              position: 'absolute',
+              top: '40%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '50vw',
+              height: '20vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              zIndex: 10,
+              display:'flex',
+              gap:'10%',
+              justifyContent:'center',
+              alignItems:'center',
+              animation: `fadeInOut ${animationLength}s ease-in-out forwards`,
+              pointerEvents: 'none'
+            }}>
+              <div style={{
+                display:'flex',
+                justifyContent:'center',
+                alignItems:'center'}}
+              >
+                <img 
+                  rel="preload"
+                  src={profile.profilePicture ? `${profile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{profile.username}</div>
+                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({profile.elo})</div>
+              </div>
+              <div style={{color:'white'}}>VS</div>
+              <div style={{
+                display:'flex',
+                justifyContent:'center',
+                alignItems:'center'}}
+              >
+                <img 
+                  rel="preload"
+                  src={opponentProfile.profilePicture ? `${opponentProfile.profilePicture}` : "/empty-profile-example.jpg"}
+                  style={{
+                    width: '3.5vw',
+                    height: '3.5vw',
+                    borderRadius: '2vw'
+                  }}
+                ></img>
+                  <div style={{marginLeft: '8%', fontWeight:'bold', width: '10vw', color:'white'}}>{opponentProfile.username}</div>
+                  <div style={{marginLeft: '10%', width: '3.5vw', color: 'gray'}}>({opponentProfile.elo})</div>
+              </div>
+            </div>
+          )}
+
           <div style={{
             display:'flex',
             height: '9vh',
