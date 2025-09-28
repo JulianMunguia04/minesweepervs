@@ -54,6 +54,16 @@ export const createTables = async () => {
         winner UUID NULL, -- null, user id, or "tie" stored as string if needed
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );`,
+      `CREATE TABLE IF NOT EXISTS friends (
+          id SERIAL PRIMARY KEY,
+          user_id UUID NOT NULL,
+          friend_id UUID NOT NULL,
+          status VARCHAR(20) DEFAULT 'requested' CHECK (status IN ('requested', 'accepted')),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,
+          CONSTRAINT unique_friendship UNIQUE (user_id, friend_id)
       );`
     ];
     for (const query of tableQueries) {
