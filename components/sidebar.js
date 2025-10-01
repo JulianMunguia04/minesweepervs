@@ -483,6 +483,7 @@ const Sidebar = ({
           style={{ position: 'relative', width: '100%' }}
           onMouseEnter={socialMenuOn}
           onMouseLeave={socialMenuTimedOff}
+          onClick={() => window.location.href = '/social'}
         >
           <div
             className="convex-minesweeper"
