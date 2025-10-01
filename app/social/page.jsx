@@ -41,11 +41,39 @@ const Social = () => {
             </div>
             <div style={{display:'flex', flexDirection:'column', alignItems: "center", padding:"10px", width:"100%", marginTop: "4%"}}>
               <div style={{display:'flex', width:"80%", justifyContent:"space-around"}}>
-                <div className="menu-buttons" style={{marginRight:'10%', width: "10vw", height: "10vw"}}>
-                  <div style={{width: "10vw", height: "5vw", backgroundColor: "blue", borderTopRightRadius:"20%"}}>Friends</div>
+                <div className="menu-buttons" style={{marginRight:'10%', width: "16vw", height: "18vw"}}
+                  onClick={() => router.push('/social/friends')}
+                >
+                  <div style={{backgroundColor:"#B5FED9", display: "flex", alignItems: "center", justifyContent:"center", width: "16vw", height: "11vw", borderTopRightRadius:"1vw", borderTopLeftRadius:"1vw"}}>
+                    <img src="/friends.png" style={{width:'6vw', height: '6vw'}}></img>
+                  </div>
+                  <div style={{padding: "10%", width: "16vw", height: "7vw", backgroundColor: "#313131ff", borderBottomRightRadius:"1vw", borderBottomLeftRadius:"1vw"}}>
+                    <div style={{marginLeft: "5%", fontWeight: "bold", color:"white", fontSize: "1vw"}}>Friends</div>
+                    <div style={{marginLeft: "5%", color:"white", fontSize: "0.8vw"}}>Find and add new friends</div>
+                  </div>
                 </div>
-                <div className="menu-buttons" style={{marginRight:'10%', width: "10vw", height: "10vw"}}>Messages</div>
-                <div className="menu-buttons" style={{width: "10vw", height: "10vw"}}>Blog</div>
+                <div className="menu-buttons" style={{marginRight:'10%', width: "16vw", height: "18vw"}}
+                  onClick={() => router.push('/social/messages')}
+                >
+                  <div style={{backgroundColor:"#98CBB4", display: "flex", alignItems: "center", justifyContent:"center", width: "16vw", height: "11vw", borderTopRightRadius:"1vw", borderTopLeftRadius:"1vw"}}>
+                    <img src="/messages.png" style={{width:'6vw', height: '6vw'}}></img>
+                  </div>
+                  <div style={{padding: "10%", width: "16vw", height: "7vw", backgroundColor: "#313131ff", borderBottomRightRadius:"1vw", borderBottomLeftRadius:"1vw"}}>
+                    <div style={{marginLeft: "5%", fontWeight: "bold", color:"white", fontSize: "1vw"}}>Messages</div>
+                    <div style={{marginLeft: "5%", color:"white", fontSize: "0.8vw"}}>View Messages</div>
+                  </div>
+                </div>
+                <div className="menu-buttons" style={{marginRight:'10%', width: "16vw", height: "18vw"}}
+                  onClick={() => router.push('/social/blog')}
+                >
+                  <div style={{backgroundColor:"#7BA098", display: "flex", alignItems: "center", justifyContent:"center", width: "16vw", height: "11vw", borderTopRightRadius:"1vw", borderTopLeftRadius:"1vw"}}>
+                    <img src="/blog.png" style={{width:'6vw', height: '6vw'}}></img>
+                  </div>
+                  <div style={{padding: "10%", width: "16vw", height: "7vw", backgroundColor: "#313131ff", borderBottomRightRadius:"1vw", borderBottomLeftRadius:"1vw"}}>
+                    <div style={{marginLeft: "5%", fontWeight: "bold", color:"white", fontSize: "1vw"}}>Blog</div>
+                    <div style={{marginLeft: "5%", color:"white", fontSize: "0.8vw"}}>Discuss with fellow players</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
