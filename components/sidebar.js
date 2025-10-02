@@ -300,6 +300,7 @@ const Sidebar = ({
               alignItems:'center',
               padding:'1.5%'
             }}
+            onClick={() => window.location.href = '/learn'}
           >
             <img 
               src="/Learn.png"
@@ -346,6 +347,7 @@ const Sidebar = ({
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onClick={() => window.location.href = '/learn/minesweeper'}
               >
                 <img 
                   src="/Tutorial.png"
@@ -375,6 +377,7 @@ const Sidebar = ({
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onClick={() => window.location.href = '/learn/vs'}
               >
                 <img 
                   src="/Minesweepervslogo.png"
@@ -483,7 +486,6 @@ const Sidebar = ({
           style={{ position: 'relative', width: '100%' }}
           onMouseEnter={socialMenuOn}
           onMouseLeave={socialMenuTimedOff}
-          onClick={() => window.location.href = '/social'}
         >
           <div
             className="convex-minesweeper"
@@ -496,6 +498,7 @@ const Sidebar = ({
               alignItems:'center',
               padding:'1.5%'
             }}
+            onClick={() => window.location.href = '/social'}
           >
             <img 
               src="/Social.png"
@@ -542,6 +545,7 @@ const Sidebar = ({
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onClick={() => window.location.href = '/social/friends'}
               >
                 <img 
                   src="/Friends.png"
@@ -570,6 +574,7 @@ const Sidebar = ({
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onClick={() => window.location.href = '/social/messages'}
               >
                 <img 
                   src="/Messages.png"
@@ -598,6 +603,7 @@ const Sidebar = ({
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onClick={() => window.location.href = '/social/blog'}
               >
                 <img 
                   src="/Blog.png"
