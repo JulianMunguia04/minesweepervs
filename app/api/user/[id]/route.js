@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import client from "../../../../database/postgresdb";
 
 export async function GET(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return NextResponse.json({ message: "User ID is required" }, { status: 400 });

@@ -12,8 +12,10 @@ const Profile = () => {
   const { userid } = params;
 
   const [userData, setUserData] = useState(null);
-  const [profileData, setProfileData] = useState(null)
-
+  const [profileData, setProfileData] = useState(null);
+  const [gameHistory, setGameHistory] = useState(null);
+  const [gameHistoryChecked, setGameHistoryChecked] = useState(false);
+ 
   const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   
   useEffect(() => {
@@ -49,11 +51,22 @@ const Profile = () => {
       });
   }, [userid]);
 
-  useEffect(()=>{
-    console.log("profile data updated", profileData)
-  },[profileData])
+  useEffect(() => {
+    if (!userid) return;
 
-  
+    fetch(`${FRONTEND_URL}/api/gamehistory/${userid}`, {
+      method: "GET",
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched game history data:", data);
+        setGameHistory(data);
+        setGameHistoryChecked(true);
+      })
+      .catch(err => {
+        console.error("❌ Failed to fetch game history data", err);
+      });
+  }, [userid]);
 
   return(
     <>
@@ -87,6 +100,19 @@ const Profile = () => {
                 <div>ELO: {profileData.elo}</div>
                 <div>Average Points Per Second: {profileData.avg_points_per_second}</div>
                 <div>Account Created: {new Date(profileData.created_at).toLocaleDateString()}</div>
+                {!gameHistoryChecked ? (
+                  <div>...getting game history</div>
+                ) : gameHistory && gameHistory.length > 0 ? (
+                  <div>
+                    {gameHistory.map((game, index) => (
+                      <div key={index}>
+                        <div>Game: {game.gameid}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>No games found.</div>
+                )}
               </div>
             ):(
               <div>
