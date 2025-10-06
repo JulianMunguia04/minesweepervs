@@ -12,7 +12,6 @@ export async function GET(req, { params }) {
     const query = `
       SELECT 
         g.*,
-        -- player 1 info
         json_build_object(
           'id', u1.id,
           'username', u1.username,
@@ -21,7 +20,6 @@ export async function GET(req, { params }) {
           'profile_picture', u1.profile_picture,
           'elo', u1.elo
         ) AS player1_info,
-        -- player 2 info
         json_build_object(
           'id', u2.id,
           'username', u2.username,
@@ -31,8 +29,8 @@ export async function GET(req, { params }) {
           'elo', u2.elo
         ) AS player2_info
       FROM games g
-      JOIN users u1 ON g.player1 = u1.id
-      JOIN users u2 ON g.player2 = u2.id
+      LEFT JOIN users u1 ON g.player1 = u1.id
+      LEFT JOIN users u2 ON g.player2 = u2.id
       WHERE g.player1 = $1 OR g.player2 = $1
       ORDER BY g.created_at DESC;
     `;

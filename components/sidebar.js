@@ -656,6 +656,13 @@ const Sidebar = ({
                 fontWeight:'bold',
                 fontSize:'120%'
               }}
+              onClick={() => {
+                if (userData) {
+                  window.location.href = `/profile/${userData.id}`;
+                } else {
+                  window.location.href = '/login';
+                }
+              }}
             >
               My Account
             </div>

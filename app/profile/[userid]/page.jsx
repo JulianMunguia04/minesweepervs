@@ -15,6 +15,7 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [gameHistory, setGameHistory] = useState(null);
   const [gameHistoryChecked, setGameHistoryChecked] = useState(false);
+  const [gameHistoryPage, setGameHistoryPage] = useState(1)
  
   const FRONTEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   
@@ -74,50 +75,107 @@ const Profile = () => {
             userData={userData}
         />
         <main style={{marginLeft:'calc(13vw + 16px)', padding:'4%'}}>
-          <div className='convex-minesweeper-no-hover' style={{padding:"3vw"}}>
-            <div style={{display:"flex", alignItems:"center"}}>
-              <img 
-                rel="preload"
-                src={profileData?.profile_picture? `${profileData?.profile_picture}` : "/My-Account.png"}
-                style={{
-                  width: '8%',
-                  borderRadius: '100%'
-                }}
-              />
-              <div style={{fontWeight:"bold", fontSize: "1.75vw", letterSpacing: "0.5px"}}>Profile</div>
-            </div>
-            <div>
-              Profile Info:
-            </div>
+          <div className='convex-minesweeper-no-hover' style={{padding:"2vw"}}>
             {profileData ? (
               <div>
-                <div>Username: {profileData.username}</div>
+                <div style={{display:"flex", alignItems:"center"}}>
+                <img 
+                  rel="preload"
+                  src={profileData?.profile_picture? `${profileData?.profile_picture}` : "/My-Account.png"}
+                  style={{
+                    width: '5%',
+                    borderRadius: '100%'
+                  }}
+                />
+                <div style={{fontWeight:"bold", fontSize: "1.75vw", letterSpacing: "0.5px", marginLeft: "2%"}}>{profileData.username}</div>
+              </div>
                 <div>First Name: {profileData.first_name || "N/A"}</div>
                 <div>Last Name: {profileData.last_name || "N/A"}</div>
-                <div>Profile Picture: {profileData.profile_picture ? <img src={profileData.profile_picture} alt="Profile" style={{width: '100px', height: '100px'}} /> : "No picture"}</div>
                 <div>Games Played: {profileData.games_played}</div>
                 <div>Games Won: {profileData.games_won}</div>
                 <div>ELO: {profileData.elo}</div>
                 <div>Average Points Per Second: {profileData.avg_points_per_second}</div>
                 <div>Account Created: {new Date(profileData.created_at).toLocaleDateString()}</div>
-                {!gameHistoryChecked ? (
-                  <div>...getting game history</div>
-                ) : gameHistory && gameHistory.length > 0 ? (
-                  <div>
-                    {gameHistory.map((game, index) => (
-                      <div key={index}>
-                        <div>Game: {game.gameid}</div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div>No games found.</div>
-                )}
               </div>
             ):(
               <div>
                 Loading...
               </div>
+            )}
+          </div>
+          <div className='convex-minesweeper-no-hover' style={{padding:"2vw", marginTop: "2vh"}}>
+            <div 
+              style={{fontWeight:"bold", fontSize: "1.75vw", letterSpacing: "0.5px"}}
+            >
+              Game History
+            </div>
+            {!gameHistoryChecked ? (
+              <div>...getting game history</div>
+            ) : gameHistory && gameHistory.length > 0 ? (
+              <div>
+                {(() => {
+                  const gamesPerPage = 5;
+                  const startIndex = (gameHistoryPage - 1) * gamesPerPage;
+                  const endIndex = startIndex + gamesPerPage;
+                  const currentGames = gameHistory.slice(startIndex, endIndex);
+
+                  return (
+                    <>
+                      {currentGames.map((game, index) => (
+                        <div
+                          key={index}
+                          className="concave-minesweeper-no-hover"
+                          style={{
+                            marginTop: "1vh",
+                            height: "3vh",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "0 1vw",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <div>Game ID: {game.gameid}</div>
+                          <div>Date: {new Date(game.created_at).toLocaleDateString()}</div>
+                        </div>
+                      ))}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          marginTop: "2vh",
+                          gap: "0.5vw",
+                        }}
+                      >
+                        {Array.from({
+                          length: Math.ceil(gameHistory.length / gamesPerPage),
+                        }).map((_, pageIndex) => (
+                          <div
+                            key={pageIndex}
+                            onClick={() => setGameHistoryPage(pageIndex + 1)}
+                            className="concave-minesweeper-no-hover"
+                            style={{
+                              padding: "0.5vw 1vw",
+                              cursor: "pointer",
+                              backgroundColor:
+                                gameHistoryPage === pageIndex + 1 ? "lightblue" : "transparent",
+                              border: "1px solid gray",
+                              borderRadius: "6px",
+                              fontWeight:
+                                gameHistoryPage === pageIndex + 1 ? "bold" : "normal",
+                            }}
+                          >
+                            {pageIndex + 1}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div>No games found.</div>
             )}
           </div>
         </main>
