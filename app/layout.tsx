@@ -35,10 +35,12 @@ export default function RootLayout({
         />
                 
       </head>
-      <body>
+      <body style={{position: "relative", minHeight: "100vh"}}>
         <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
           {children}
         </GoogleOAuthProvider>
+        <img src="/gaemtiem-logo.png" style={{position:"absolute", bottom: "2vh", right: "2vh", width: "10vh"}}>
+        </img>
       </body>
     </html>
   );

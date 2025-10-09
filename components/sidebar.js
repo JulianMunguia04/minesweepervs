@@ -415,6 +415,7 @@ const Sidebar = ({
               alignItems:'center',
               padding:'1.5%'
             }}
+            onClick={() => router.push('/news')}
           >
             <img 
               src="/News.png"
