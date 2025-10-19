@@ -19,6 +19,10 @@ const Friends = () => {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
+  const [query, setQuery] = useState("")
+  const [queriedUsers, setQueriedUsers] = useState([])
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
   useEffect(() => {
     if (search.trim() === "") {
       setSearchResults([]);
@@ -58,10 +62,10 @@ const Friends = () => {
 
         // 2️⃣ Fetch all friend info in parallel
         const friendsData = await Promise.all(
-          friendIds.map(async (fid) => {
+          friendIds.map(async (id) => {
             try {
-              const res = await fetch(`${FRONTEND_URL}/api/user/${fid}`);
-              if (!res.ok) throw new Error(`Failed to fetch user ${fid}`);
+              const res = await fetch(`${FRONTEND_URL}/api/user/${id}`);
+              if (!res.ok) throw new Error(`Failed to fetch user ${id}`);
               return await res.json();
             } catch (err) {
               console.error(err);
@@ -92,6 +96,58 @@ const Friends = () => {
     if (friendsPage < totalPages) setFriendsPage(friendsPage + 1);
   };
 
+  const searchUsers = async (searchText) => {
+    const res = await fetch("/api/searchusers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: searchText }),
+    });
+    const users = await res.json();
+    setQueriedUsers(users)
+    console.log("users: ", users)
+  };
+
+  const handleSearch = async (text) => {
+    console.log("enter")
+    setQuery(text);
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+
+    const newTimeout = setTimeout(() => {
+      if (text.trim().length > 0) {
+        searchUsers(text);
+      } else {
+        setQueriedUsers([]);
+      }
+    }, 500);
+
+    setDebounceTimeout(newTimeout);
+  }
+
+  const addFriend = async (friendUsername) => {
+    console.log(friendUsername)
+    try {
+      const res = await fetch("/api/addfriend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ friend_username: friendUsername }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`✅ ${data.message}`);
+        console.log("Friendship created:", data.friendship);
+      } else {
+        alert(`⚠️ ${data.message}`);
+      }
+    } catch (err) {
+      console.error("❌ Error adding friend:", err);
+    }
+  };
+
   return (
     <>
       <Sidebar userData={userData} />
@@ -113,6 +169,7 @@ const Friends = () => {
                   key={friend.id} 
                   className="convex-minesweeper-no-hover"
                   style={{ padding: "0.5vw", marginTop: "1vh", display:"flex", alignItems:"center"}}
+                  onClick={() => window.location.href = `/profile/${friend.id}`}
                 >
                   <img 
                     rel="preload"
@@ -162,6 +219,44 @@ const Friends = () => {
                 Next →
               </button>
             </div>
+          </div>
+          <div
+            className="concave-minesweeper-no-hover"
+            style={{ padding: "2vw", marginTop: "2vh" }}
+          >
+            <div>Search Friends</div>
+            <input 
+              className="form-control search-home"
+              style={{ width: '100%', height: '4vh', boxShadow:`none`, marginBottom: '0.75rem', }} 
+              placeholder='Search' value={query} onChange={(e) => handleSearch(e.target.value)}
+            />
+            {queriedUsers.length > 0 && (
+              <div>
+                {queriedUsers.map((user) => (
+                  <div 
+                    key={user.id} 
+                    className="convex-minesweeper-no-hover"
+                    style={{ padding: "0.5vw", marginTop: "1vh", display:"flex", alignItems:"center", justifyContent:"space-between"}}
+                  >
+                    <div style={{display:"flex", alignItems:"center"}}>
+                      <img 
+                        rel="preload"
+                        src={user?.profile_picture? `${user?.profile_picture}` : "/empty-profile-example.jpg"}
+                        style={{
+                          height: '5vh',
+                          borderRadius: '100%'
+                        }}
+                      />
+                      <div style={{ marginLeft: "2%"}}>{user.username}</div>
+                    </div>
+                    {user.status === "pending" && <span>⏳ Pending</span>}
+                    {user.status === null && (
+                      <button onClick={() => addFriend(user.username)}>Add Friend</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
