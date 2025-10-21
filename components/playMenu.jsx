@@ -3,7 +3,18 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 
-const PlayMenu = ( {userData, findOnlineGame, searching, leaveOnlineGameQueue} ) => {
+const PlayMenu = ({
+  userData, 
+  findOnlineGame, 
+  searching, 
+  leaveOnlineGameQueue, 
+  showPlayMenu, 
+  playMenuOff, 
+  playMenuOn, 
+  playMenuTimedOff,
+  friends,
+  inviteFriend
+}) => {
   return(
     <>
       <div
@@ -105,6 +116,8 @@ const PlayMenu = ( {userData, findOnlineGame, searching, leaveOnlineGameQueue} )
                   alignItems:'center',
                   padding:'1.5%'
                 }}
+                onMouseEnter={playMenuOn}
+                onMouseLeave={playMenuTimedOff}
               >
                 <img 
                   src="/play-a-friend.png"
@@ -131,9 +144,48 @@ const PlayMenu = ( {userData, findOnlineGame, searching, leaveOnlineGameQueue} )
                     Invite a friend to MinesweeperVs
                   </div>
                 </div>
+                {showPlayMenu && (
+                  <div
+                    className="convex-minesweeper-no-hover"
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      right: 'calc(52% + 13vw)',
+                      padding: '0.5rem',
+                      zIndex: 100,
+                      width: '13vw',
+                      display:'flex',
+                      flexDirection:'column',
+                      maxHeight: '25vh', // 👈 set a fixed height for scroll
+                      overflowY: 'auto',
+                      justifyContent:'space-between',
+                      alignItems:'center',
+                      padding: '10px'
+                    }}
+                    onMouseLeave={playMenuOff}
+                  >
+                    {friends.map((friend) => (
+                      <div 
+                        key={friend.id} 
+                        className="convex-minesweeper-no-hover"
+                        style={{ padding: "0.5vw", marginTop: "1vh", display:"flex", alignItems:"center"}}
+                        onClick={() => inviteFriend(friend.id)}
+                      >
+                        <img 
+                          rel="preload"
+                          src={friend?.profile_picture? `${friend?.profile_picture}` : "/empty-profile-example.jpg"}
+                          style={{
+                            height: '5vh',
+                            borderRadius: '100%'
+                          }}
+                        />
+                        <div style={{ marginLeft: "1%"}}>{friend.username}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            
             <div
               style={{ position: 'relative', width: '100%' }}
             >

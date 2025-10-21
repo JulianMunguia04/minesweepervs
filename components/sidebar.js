@@ -3,13 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 const Sidebar = ({
-  userData
+  userData,
 }
 ) => {
   const router = useRouter();
 
   //Loggin In
   const [loggedIn, setLoggedIn] = useState(false)
+
 
   //All Menus
   const toggleAllMenusOff =() => {

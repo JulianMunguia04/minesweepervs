@@ -8,12 +8,22 @@ const httpServer = createServer();
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:3001'],
     methods: ['GET', 'POST'],
   },
 });
 
+const onlineUsers = new Map();
+
 io.on('connection', async (socket) => {
+  socket.on('register-user', (userData) => {
+    console.log(`user data test ${userData}`)
+    onlineUsers.set(userData.id, socket.id);
+    console.log(`online users`, onlineUsers)
+    socket.userData = userData;
+    console.log(`🟢 User ${userData.username} registered with socket ${socket.id}`);
+  });
+
   console.log('✅ New socket connected:', socket.id);
 
   socket.on('message', (data) => {
@@ -169,9 +179,71 @@ io.on('connection', async (socket) => {
     }
   });
 
+  //Inviting Friends to Games
+  socket.on("invite-friend", async (userData, friendId) => {
+    console.log(`📨 ${userData.username} invited friend ${friendId}`);
+
+    const friendSocketId = onlineUsers.get(String(friendId));
+    console.log(`friend socket id`, friendSocketId)
+
+    if (!friendSocketId) {
+      console.log(`❌ Friend ${friendId} is not online`);
+      socket.emit("invite-failed", "Friend is offline");
+      return;
+    }
+
+    // Send invite to the friend
+    io.to(friendSocketId).emit("game-invite", {
+      from: userData,
+      message: `${userData.username} invited you to a game!`
+    });
+  });
+
+  socket.on("accept-invite", async (inviterId) => {
+    const inviterSocketId = onlineUsers.get(inviterId);
+    if (!inviterSocketId) return socket.emit("error", "Inviter is no longer online");
+
+    const player1 = socket.userData;
+    const player2 = io.sockets.sockets.get(inviterSocketId)?.userData;
+
+    const gameId = uuidv4();
+
+    const gameData = {
+      player1,
+      player2,
+      player1_board: null,
+      player2_board: null,
+      player1_points: 0,
+      player2_points: 0,
+      time_left: 300,
+      player1_state: "waiting",
+      player2_state: "waiting",
+      status: "waiting",
+      gameId,
+    };
+
+    await redis.set(`match:${gameId}`, JSON.stringify(gameData));
+
+    console.log(`✅ Private game ${gameId} created between ${player1.username} and ${player2.username}`);
+
+    io.to(inviterSocketId).emit("game-found", gameId, player1, gameData);
+    io.to(socket.id).emit("game-found", gameId, player2, gameData);
+
+    // Optionally: save to SQL
+    await createGameSQL(JSON.stringify(gameData));
+  });
+
+  socket.on("decline-invite", (inviterId) => {
+    const inviterSocketId = onlineUsers.get(inviterId);
+    if (inviterSocketId) {
+      io.to(inviterSocketId).emit("invite-declined");
+    }
+  });
+
+
   //Game Joining
   socket.on('join-game', async (playerData, gameId) => {
-    const gameLengthSeconds = 2
+    const gameLengthSeconds = 120
     let game = JSON.parse(await redis.get(`match:${gameId}`));
     console.log(game)
     if (!game) return socket.emit("error", "Game not found");
@@ -405,6 +477,11 @@ io.on('connection', async (socket) => {
 
   socket.on('disconnect', async () => {
     console.log('❌ Socket disconnected:', socket.id);
+
+    if (socket.userData) {
+      onlineUsers.delete(socket.userData.id);
+      console.log(`🔴 User ${socket.userData.username} disconnected`);
+    }
 
     //Leave Matchmaking Queue
     const queue = await redis.lRange("matchmaking_queue", 0, -1);
